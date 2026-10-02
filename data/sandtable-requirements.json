@@ -1,0 +1,391 @@
+{
+  "title": "安多县沙盘制作内容",
+  "source": "纸质需求文档",
+  "date_digitized": "2026-07-07",
+  "notes": [
+    "行政村只做标牌，不亮灯",
+    "县政府/乡镇政府大楼为房子模型+亮灯+标牌",
+    "县域及各乡镇边界线为红色灯带",
+    "帕那镇为县政府所在地；图片中同时出现“帕那镇”和“帕拉镇”，疑为同一镇或笔误，此处统一记为帕那镇并在备注中说明"
+  ],
+  "county": {
+    "name": "安多县",
+    "boundary_light": "红色灯带",
+    "county_seat": {
+      "town": "帕那镇",
+      "building": "县政府大楼",
+      "building_light": true,
+      "sign": true
+    }
+  },
+  "towns": [
+    {
+      "name": "扎仁镇",
+      "type": "镇",
+      "boundary_light": "红色灯带",
+      "building_light": true,
+      "sign": true,
+      "village_count": 12,
+      "villages_known": [],
+      "villages_unknown": 12,
+      "remark": "12个行政村名称待补充"
+    },
+    {
+      "name": "雁石坪镇",
+      "type": "镇",
+      "boundary_light": "红色灯带",
+      "building_light": true,
+      "sign": true,
+      "village_count": 9,
+      "villages_known": [
+        "珠扣玛",
+        "那前玛",
+        "不玛代",
+        "色赤玛",
+        "欧随玛",
+        "曲桑玛",
+        "念美龙仁玛",
+        "雁石坪",
+        "美若来登"
+      ],
+      "villages_unknown": 0,
+      "community": "雁石坪居委会（雁石坪社区）",
+      "remark": ""
+    },
+    {
+      "name": "强玛镇",
+      "type": "镇",
+      "boundary_light": "红色灯带",
+      "building_light": true,
+      "sign": true,
+      "village_count": 5,
+      "villages_known": [
+        "吉扎布卡",
+        "热卡",
+        "酿心",
+        "觉毛",
+        "巴格"
+      ],
+      "villages_unknown": 0,
+      "community": "强玛社区（镇政府驻地）",
+      "remark": ""
+    },
+    {
+      "name": "帕那镇",
+      "type": "镇",
+      "boundary_light": "红色灯带",
+      "building_light": true,
+      "sign": true,
+      "is_county_seat": true,
+      "village_count": 4,
+      "villages_known": [],
+      "villages_unknown": 4,
+      "remark": "县政府所在地；4个行政村名称待补充。图片中写作“帕拉镇”，疑为笔误"
+    },
+    {
+      "name": "措玛乡",
+      "type": "乡",
+      "boundary_light": "红色灯带",
+      "building_light": true,
+      "sign": true,
+      "village_count": 15,
+      "villages_known": [
+        "措玛",
+        "纳巧",
+        "龙千",
+        "赤龙玛扣",
+        "其郝",
+        "托嘎",
+        "加西",
+        "西夏尔来",
+        "西厂日",
+        "色那",
+        "无包",
+        "龙那玛",
+        "多来",
+        "查宗",
+        "求龙"
+      ],
+      "villages_unknown": 0,
+      "remark": ""
+    },
+    {
+      "name": "滩堆乡",
+      "type": "乡",
+      "boundary_light": "红色灯带",
+      "building_light": true,
+      "sign": true,
+      "village_count": 6,
+      "villages_known": [
+        "穷玛冉",
+        "热美",
+        "索托强玛",
+        "藏千",
+        "龙木",
+        "多嘎尔"
+      ],
+      "villages_unknown": 0,
+      "remark": ""
+    },
+    {
+      "name": "扎曲乡",
+      "type": "乡",
+      "boundary_light": "红色灯带",
+      "building_light": true,
+      "sign": true,
+      "village_count": 5,
+      "villages_known": [],
+      "villages_unknown": 5,
+      "remark": "5个行政村名称待补充"
+    },
+    {
+      "name": "岗尼乡",
+      "type": "乡",
+      "boundary_light": "红色灯带",
+      "building_light": true,
+      "sign": true,
+      "village_count": 7,
+      "villages_known": [
+        "色务机该",
+        "龙木",
+        "岗尼",
+        "尼玛龙",
+        "纳那查",
+        "嘎冉日龙",
+        "多玛梅日共我"
+      ],
+      "villages_unknown": 0,
+      "remark": ""
+    },
+    {
+      "name": "玛曲乡",
+      "type": "乡",
+      "boundary_light": "红色灯带",
+      "building_light": true,
+      "sign": true,
+      "village_count": 8,
+      "villages_known": [
+        "日玛",
+        "玛如",
+        "莎保",
+        "口匝粮",
+        "纳友",
+        "扎碎",
+        "要格",
+        "欧如"
+      ],
+      "villages_unknown": 0,
+      "remark": ""
+    },
+    {
+      "name": "色务乡",
+      "type": "乡",
+      "boundary_light": "红色灯带",
+      "building_light": true,
+      "sign": true,
+      "village_count": 10,
+      "villages_known": [],
+      "villages_unknown": 10,
+      "remark": "10个行政村名称待补充"
+    },
+    {
+      "name": "玛荣乡",
+      "type": "乡",
+      "boundary_light": "红色灯带",
+      "building_light": true,
+      "sign": true,
+      "village_count": 4,
+      "villages_known": [
+        "复生",
+        "布资",
+        "草巴",
+        "万石"
+      ],
+      "villages_unknown": 0,
+      "remark": ""
+    },
+    {
+      "name": "多玛乡",
+      "type": "乡",
+      "boundary_light": "红色灯带",
+      "building_light": true,
+      "sign": true,
+      "village_count": 7,
+      "villages_known": [
+        "曲超公玛",
+        "东日",
+        "碎纳泥",
+        "嘎仁",
+        "其绕岗仁",
+        "嘎百",
+        "姆迟泥"
+      ],
+      "villages_unknown": 0,
+      "remark": ""
+    },
+    {
+      "name": "帮麦乡",
+      "type": "乡",
+      "boundary_light": "红色灯带",
+      "building_light": true,
+      "sign": true,
+      "village_count": 8,
+      "villages_known": [
+        "罗布玉泽",
+        "果仓玛",
+        "多卓"
+      ],
+      "villages_unknown": 5,
+      "remark": "文档列出3个，另5个行政村名称待补充"
+    }
+  ],
+  "roads": [
+    {
+      "name": "国道109",
+      "category": "公路",
+      "light_color": "黄色或白色",
+      "remark": ""
+    },
+    {
+      "name": "通往邻县主干道",
+      "category": "公路",
+      "light_color": "黄色或白色",
+      "remark": ""
+    },
+    {
+      "name": "县城通往乡镇主干道",
+      "category": "公路",
+      "light_color": "黄色或白色",
+      "routes": ["X622", "X619", "C037", "S301"],
+      "remark": ""
+    },
+    {
+      "name": "青藏铁路",
+      "category": "铁路",
+      "light_color": "带灯光",
+      "remark": ""
+    },
+    {
+      "name": "待建高速",
+      "category": "高速",
+      "light_color": "带灯光",
+      "remark": ""
+    }
+  ],
+  "temples": [
+    {
+      "name": "白日寺",
+      "light": false,
+      "sign": true,
+      "building": true,
+      "remark": "按教派区分"
+    },
+    {
+      "name": "乃母寺",
+      "light": false,
+      "sign": true,
+      "building": true,
+      "remark": "按教派区分"
+    },
+    {
+      "name": "强玛寺",
+      "light": false,
+      "sign": true,
+      "building": true,
+      "remark": "按教派区分"
+    },
+    {
+      "name": "雪琼寺",
+      "light": false,
+      "sign": true,
+      "building": true,
+      "remark": "按教派区分"
+    },
+    {
+      "name": "唐卡寺",
+      "light": false,
+      "sign": true,
+      "building": true,
+      "remark": "按教派区分"
+    }
+  ],
+  "rivers": [
+    {
+      "name": "怒江",
+      "section": "上游段",
+      "light": true,
+      "sign": true
+    },
+    {
+      "name": "扎布藏布",
+      "light": true,
+      "sign": true
+    },
+    {
+      "name": "布曲",
+      "light": true,
+      "sign": true
+    },
+    {
+      "name": "帕曲",
+      "light": true,
+      "sign": true
+    },
+    {
+      "name": "拉日曲",
+      "light": true,
+      "sign": true
+    }
+  ],
+  "lakes": [
+    {
+      "name": "错那湖",
+      "light": true,
+      "sign": true
+    }
+  ],
+  "mountains": [
+    {
+      "name": "唐古拉山垭口",
+      "elevation_m": 5231,
+      "sign": true,
+      "remark": "制作标牌+海拔"
+    },
+    {
+      "name": "各拉丹东雪山",
+      "elevation_m": 6621,
+      "sign": true,
+      "remark": "制作标牌+海拔"
+    },
+    {
+      "name": "岗加巧巴",
+      "elevation_m": null,
+      "sign": true,
+      "remark": "制作标牌+海拔（海拔待补充）"
+    },
+    {
+      "name": "托尔久山",
+      "elevation_m": null,
+      "sign": true,
+      "remark": "制作标牌+海拔（海拔待补充）"
+    },
+    {
+      "name": "唐古拉山",
+      "elevation_m": null,
+      "sign": true,
+      "remark": "制作标牌+海拔（海拔待补充）"
+    },
+    {
+      "name": "可可西里山",
+      "elevation_m": null,
+      "sign": true,
+      "remark": "制作标牌+海拔（海拔待补充）"
+    },
+    {
+      "name": "祖尔肯乌拉山",
+      "elevation_m": null,
+      "sign": true,
+      "remark": "制作标牌+海拔（海拔待补充）"
+    }
+  ]
+}

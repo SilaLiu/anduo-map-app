@@ -1,0 +1,10 @@
+{
+  "towns": 13,
+  "villages": 64,
+  "roads": 3,
+  "rivers": 5,
+  "lakes": 1,
+  "mountains": 5,
+  "temples": 5,
+  "missing": 94
+}

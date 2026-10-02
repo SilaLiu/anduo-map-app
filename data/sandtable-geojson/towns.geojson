@@ -1,0 +1,346 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.7081969,
+          31.9858263
+        ]
+      },
+      "properties": {
+        "name": "扎仁镇",
+        "category": "town",
+        "town_type": "镇",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "12个行政村名称待补充",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "扎仁镇",
+        "village": "",
+        "level": "town",
+        "source": "sandtable-requirements + town_centers.json"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.069453,
+          33.59756
+        ]
+      },
+      "properties": {
+        "name": "雁石坪镇",
+        "category": "town",
+        "town_type": "镇",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "雁石坪镇",
+        "village": "",
+        "level": "town",
+        "source": "sandtable-requirements + town_centers.json"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.8437354,
+          31.9761737
+        ]
+      },
+      "properties": {
+        "name": "强玛镇",
+        "category": "town",
+        "town_type": "镇",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "强玛镇",
+        "village": "",
+        "level": "town",
+        "source": "sandtable-requirements + town_centers.json"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.6784084,
+          32.2617876
+        ]
+      },
+      "properties": {
+        "name": "帕那镇",
+        "category": "town",
+        "town_type": "镇",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": true,
+        "note": "县政府所在地；4个行政村名称待补充。图片中写作“帕拉镇”，疑为笔误",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "帕那镇",
+        "village": "",
+        "level": "town",
+        "source": "sandtable-requirements + town_centers.json"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.451532,
+          32.1607463
+        ]
+      },
+      "properties": {
+        "name": "措玛乡",
+        "category": "town",
+        "town_type": "乡",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "措玛乡",
+        "village": "",
+        "level": "town",
+        "source": "sandtable-requirements + town_centers.json"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1951406,
+          32.270597
+        ]
+      },
+      "properties": {
+        "name": "滩堆乡",
+        "category": "town",
+        "town_type": "乡",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "滩堆乡",
+        "village": "",
+        "level": "town",
+        "source": "sandtable-requirements + town_centers.json"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.6142667,
+          32.46436
+        ]
+      },
+      "properties": {
+        "name": "扎曲乡",
+        "category": "town",
+        "town_type": "乡",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "5个行政村名称待补充",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "扎曲乡",
+        "village": "",
+        "level": "town",
+        "source": "sandtable-requirements + town_centers.json"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.4093248,
+          32.8381206
+        ]
+      },
+      "properties": {
+        "name": "岗尼乡",
+        "category": "town",
+        "town_type": "乡",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "岗尼乡",
+        "village": "",
+        "level": "town",
+        "source": "sandtable-requirements + town_centers.json"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.5531908,
+          33.9980284
+        ]
+      },
+      "properties": {
+        "name": "玛曲乡",
+        "category": "town",
+        "town_type": "乡",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "玛曲乡",
+        "village": "",
+        "level": "town",
+        "source": "sandtable-requirements + town_centers.json"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.2949866,
+          33.7424767
+        ]
+      },
+      "properties": {
+        "name": "色务乡",
+        "category": "town",
+        "town_type": "乡",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "10个行政村名称待补充",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "色务乡",
+        "village": "",
+        "level": "town",
+        "source": "sandtable-requirements + town_centers.json"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.5847559,
+          32.9848865
+        ]
+      },
+      "properties": {
+        "name": "玛荣乡",
+        "category": "town",
+        "town_type": "乡",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "玛荣乡",
+        "village": "",
+        "level": "town",
+        "source": "sandtable-requirements + town_centers.json"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          93.1737163,
+          33.7141784
+        ]
+      },
+      "properties": {
+        "name": "多玛乡",
+        "category": "town",
+        "town_type": "乡",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "多玛乡",
+        "village": "",
+        "level": "town",
+        "source": "sandtable-requirements + town_centers.json"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.0382233,
+          32.4718558
+        ]
+      },
+      "properties": {
+        "name": "帮麦乡",
+        "category": "town",
+        "town_type": "乡",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "文档列出3个，另5个行政村名称待补充",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "帮麦乡",
+        "village": "",
+        "level": "town",
+        "source": "sandtable-requirements + town_centers.json"
+      }
+    }
+  ],
+  "properties": {
+    "category": "town"
+  }
+}

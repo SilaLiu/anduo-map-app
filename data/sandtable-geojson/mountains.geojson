@@ -1,0 +1,105 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.9184292,
+          32.8826237
+        ]
+      },
+      "properties": {
+        "name": "唐古拉山垭口",
+        "category": "mountain",
+        "elevation_m": "5231",
+        "sign": true,
+        "note": "制作标牌+海拔",
+        "source": "OpenStreetMap",
+        "osm_id": 7345159997
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.1667381,
+          33.4960687
+        ]
+      },
+      "properties": {
+        "name": "各拉丹东雪山",
+        "category": "mountain",
+        "elevation_m": "6621",
+        "sign": true,
+        "note": "制作标牌+海拔",
+        "source": "OpenStreetMap",
+        "osm_id": 6160989946
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.9184292,
+          32.8826237
+        ]
+      },
+      "properties": {
+        "name": "唐古拉山",
+        "category": "mountain",
+        "elevation_m": "5231",
+        "sign": true,
+        "note": "制作标牌+海拔（海拔待补充）",
+        "source": "OpenStreetMap",
+        "osm_id": 7345159997
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.6,
+          33.95
+        ]
+      },
+      "properties": {
+        "name": "可可西里山",
+        "category": "mountain",
+        "elevation_m": null,
+        "sign": true,
+        "note": "制作标牌+海拔（海拔待补充）（gazetteer 代表点：山脉，取县境西北代表点）",
+        "source": "gazetteer",
+        "needs_review": true,
+        "outside_county": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.75,
+          33.75
+        ]
+      },
+      "properties": {
+        "name": "祖尔肯乌拉山",
+        "category": "mountain",
+        "elevation_m": null,
+        "sign": true,
+        "note": "制作标牌+海拔（海拔待补充）（gazetteer 代表点：山脉，取县境北部代表点）",
+        "source": "gazetteer",
+        "needs_review": true,
+        "outside_county": true
+      }
+    }
+  ],
+  "properties": {
+    "category": "mountain"
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1107779,
+          32.3259022
+        ]
+      },
+      "properties": {
+        "name": "白日寺",
+        "category": "temple",
+        "light": false,
+        "sign": true,
+        "building": true,
+        "note": "按教派区分，不加灯标牌+寺庙房子（Nominatim 估算）",
+        "source": "Nominatim",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.4284909,
+          31.9797866
+        ]
+      },
+      "properties": {
+        "name": "乃母寺",
+        "category": "temple",
+        "light": false,
+        "sign": true,
+        "building": true,
+        "note": "按教派区分，不加灯标牌+寺庙房子",
+        "source": "OpenStreetMap",
+        "osm_id": 8294577819
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.8437354,
+          31.9761737
+        ]
+      },
+      "properties": {
+        "name": "强玛寺",
+        "category": "temple",
+        "light": false,
+        "sign": true,
+        "building": true,
+        "note": "按教派区分，不加灯标牌+寺庙房子（Nominatim 估算）",
+        "source": "Nominatim",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.4035732,
+          31.6674129
+        ]
+      },
+      "properties": {
+        "name": "雪琼寺",
+        "category": "temple",
+        "light": false,
+        "sign": true,
+        "building": true,
+        "note": "按教派区分，不加灯标牌+寺庙房子",
+        "source": "OpenStreetMap",
+        "osm_id": 13512230771
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.4335793,
+          32.3018987
+        ]
+      },
+      "properties": {
+        "name": "唐卡寺",
+        "category": "temple",
+        "light": false,
+        "sign": true,
+        "building": true,
+        "note": "按教派区分，不加灯标牌+寺庙房子（Nominatim 估算）",
+        "source": "Nominatim",
+        "needs_review": true
+      }
+    }
+  ],
+  "properties": {
+    "category": "temple"
+  }
+}

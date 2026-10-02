@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>安多县卫星图（旧版界面存档）</title>
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+  <link rel="stylesheet" href="src/styles/main.css">
+</head>
+<body>
+  <div id="loading"><div class="spin"></div></div>
+
+  <!-- 顶部工具栏 -->
+  <header id="topbar">
+    <div class="tb-left">
+      <div class="logo"><span class="logo-icon">🛰️</span><span class="logo-text">安多县卫星图</span></div>
+      <nav class="tb-menu">
+        <button class="tb-menu-item" data-menu="file">文件</button>
+        <button class="tb-menu-item" data-menu="view">视图</button>
+        <button class="tb-menu-item" data-menu="draw">绘制</button>
+        <button class="tb-menu-item" data-menu="tool">工具</button>
+      </nav>
+    </div>
+    <div class="tb-center">
+      <div class="tb-search">
+        <span class="tb-search-icon">🔍</span>
+        <input id="search-input" placeholder="搜索标注、行政区或坐标...">
+      </div>
+    </div>
+    <div class="tb-right">
+      <span id="zoom-display" class="tb-badge">Z15</span>
+      <span id="online-status" class="tb-badge online">在线</span>
+      <button id="tb-user" class="tb-icon-btn" title="设置">⚙️</button>
+    </div>
+  </header>
+
+  <div id="app-body">
+    <button id="menu-toggle">☰</button>
+
+    <!-- 左侧边栏 -->
+    <aside id="sidebar">
+      <div class="sb-tabs">
+        <button class="sb-tab active" data-tab="fav">收藏夹</button>
+        <button class="sb-tab" data-tab="admin">行政区</button>
+        <button class="sb-tab" data-tab="extract">AI提取</button>
+        <button class="sb-tab" data-tab="sandtable">沙盘</button>
+      </div>
+
+      <div id="tab-fav" class="sb-panel active">
+        <div class="panel-toolbar">
+          <button id="btn-export" title="导出标注">📤 导出</button>
+          <button id="btn-import" title="导入标注">📥 导入</button>
+          <button id="btn-clear" title="清空标注" style="color:var(--danger)">🗑️</button>
+        </div>
+        <div id="annotations-list"><div class="empty">暂无标注<br>在地图上右键添加，或用工具栏绘制/提取</div></div>
+      </div>
+
+      <div id="tab-admin" class="sb-panel">
+        <div id="admin-status">
+          <span id="boundary-status">未导入行政区边界数据。当前可按省 / 县区 / 乡镇 / 村录入并树形管理，导入边界后可高亮区域。</span>
+          <div id="admin-actions">
+            <button id="btn-import-boundaries">🗺️ 导入边界</button>
+            <button id="btn-load-local-library">📚 本地边界库</button>
+            <button id="btn-load-all-boundaries">🌏 一键加载全部</button>
+            <button id="btn-auto-assign-all">🧭 自动归属</button>
+            <button id="btn-clear-boundaries">🧹 清空边界</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-extract" class="sb-panel">
+        <div id="extract-preview">
+          <div class="panel-toolbar">
+            <span class="panel-title">📋 提取结果预览</span>
+            <button id="preview-import-all">全部导入</button>
+          </div>
+          <div id="preview-list"></div>
+        </div>
+      </div>
+
+      <div id="tab-sandtable" class="sb-panel">
+        <div class="empty">沙盘数据加载中...</div>
+      </div>
+
+      <div id="sidebar-footer">
+        <span id="coord-display">N 32° E 91°</span>
+      </div>
+    </aside>
+
+    <!-- 地图主区域 -->
+    <main id="map-wrap">
+      <div id="map"></div>
+
+      <!-- 右侧地图控件 -->
+      <div class="map-controls">
+        <div id="layer-s" class="mc-group" title="底图切换">
+          <button id="l-sat" class="mc-btn active" title="卫星影像">🛰️</button>
+          <button id="l-street" class="mc-btn" title="街道地图">🗺️</button>
+          <button id="l-tianditu" class="mc-btn" title="天地图">🇨🇳</button>
+        </div>
+
+        <div id="draw-toolbar" class="mc-group" title="绘制工具">
+          <button id="dt-point" class="mc-btn active" title="标注点 (右键点击地图)">📍</button>
+          <button id="dt-line" class="mc-btn" title="绘制道路">🛣️</button>
+          <button id="dt-polygon" class="mc-btn" title="绘制建筑">🏢</button>
+          <button id="dt-extract" class="mc-btn" title="AI提取 (圈选区域自动识别)">🔍</button>
+        </div>
+
+        <div id="draw-actions" class="mc-group">
+          <span class="vtx-count" id="vtx-count">0 个顶点</span>
+          <button id="dt-undo" class="mc-btn mc-btn-text">↩️ 撤销</button>
+          <button id="dt-finish" class="mc-btn mc-btn-primary">✅ 完成</button>
+          <button id="dt-cancel" class="mc-btn mc-btn-danger">❌ 取消</button>
+        </div>
+      </div>
+
+      <div id="draw-hint">🖱️ 点击地图添加顶点 · 双击完成 · Esc 取消</div>
+
+      <!-- 底部状态栏 -->
+      <footer id="statusbar">
+        <div class="sb-left">
+          <span id="sb-coord">32.0000°N 91.0000°E</span>
+          <span id="sb-ele">海拔 -- m</span>
+        </div>
+        <div class="sb-center">
+          <span id="sb-scale">比例尺 500 m</span>
+          <span id="sb-date">影像 2024/02/20</span>
+        </div>
+        <div class="sb-right">
+          <span id="sb-level">级别 15</span>
+          <span id="sb-render">运行中</span>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <!-- 添加弹窗 -->
+  <div id="d-add" class="dialog hide">
+    <div class="dialog-c">
+      <h3 id="add-title">📍 添加标注</h3>
+      <div class="ci" id="a-pos"></div>
+      <input id="a-name" placeholder="名称">
+      <textarea id="a-note" placeholder="备注" rows="2"></textarea>
+      <div class="cp" id="a-cp">
+        <span data-c="#ef4444" style="background:#ef4444" class="on"></span>
+        <span data-c="#f59e0b" style="background:#f59e0b"></span>
+        <span data-c="#10b981" style="background:#10b981"></span>
+        <span data-c="#3b82f6" style="background:#3b82f6"></span>
+        <span data-c="#8b5cf6" style="background:#8b5cf6"></span>
+        <span data-c="#ec4899" style="background:#ec4899"></span>
+      </div>
+      <div class="type-fields" id="a-road-fields" style="display:none">
+        <div class="row">
+          <select id="a-road-class"><option value="">道路等级</option><option value="highway">高速公路</option><option value="primary">主干道</option><option value="secondary">次干道</option><option value="residential">住宅区道路</option><option value="path">小路</option></select>
+          <input id="a-lanes" type="number" placeholder="车道数" min="1" max="20" style="flex:0.6">
+        </div>
+        <select id="a-surface"><option value="">路面类型</option><option value="asphalt">沥青</option><option value="concrete">水泥</option><option value="gravel">碎石</option><option value="dirt">土路</option></select>
+      </div>
+      <div class="type-fields" id="a-building-fields" style="display:none">
+        <div class="row">
+          <select id="a-building-type"><option value="">建筑类型</option><option value="residential">住宅</option><option value="commercial">商业</option><option value="industrial">工业</option><option value="public">公共建筑</option><option value="other">其他</option></select>
+          <input id="a-floors" type="number" placeholder="楼层数" min="1" max="200" style="flex:0.6">
+        </div>
+      </div>
+      <div class="admin-fields">
+        <label>行政归属</label>
+        <div class="grid">
+          <input id="a-admin-province" list="admin-province-list" placeholder="省 / 自治区">
+          <input id="a-admin-county" list="admin-county-list" placeholder="县 / 区">
+          <input id="a-admin-town" list="admin-town-list" placeholder="乡镇">
+          <input id="a-admin-village" list="admin-village-list" placeholder="村">
+          <input id="a-admin-region" class="full" placeholder="区域 / 片区（可选）">
+        </div>
+        <div class="status" id="a-admin-status">未匹配到行政区边界</div>
+        <div class="actions">
+          <button id="a-fill-boundary" type="button">使用当前高亮行政区</button>
+          <button id="a-clear-admin" type="button">清空行政归属</button>
+        </div>
+      </div>
+      <div class="btns"><button id="a-cancel">取消</button><button id="a-save" class="p">保存</button></div>
+    </div>
+  </div>
+
+  <!-- 编辑弹窗 -->
+  <div id="d-edit" class="dialog hide">
+    <div class="dialog-c">
+      <h3 id="edit-title">✏️ 编辑</h3>
+      <div class="ci" id="e-pos"></div>
+      <input id="e-name" placeholder="名称">
+      <textarea id="e-note" placeholder="备注" rows="2"></textarea>
+      <div class="cp" id="e-cp">
+        <span data-c="#ef4444" style="background:#ef4444"></span><span data-c="#f59e0b" style="background:#f59e0b"></span><span data-c="#10b981" style="background:#10b981"></span><span data-c="#3b82f6" style="background:#3b82f6"></span><span data-c="#8b5cf6" style="background:#8b5cf6"></span><span data-c="#ec4899" style="background:#ec4899"></span>
+      </div>
+      <div class="type-fields" id="e-road-fields" style="display:none">
+        <div class="row">
+          <select id="e-road-class"><option value="">道路等级</option><option value="highway">高速公路</option><option value="primary">主干道</option><option value="secondary">次干道</option><option value="residential">住宅区道路</option><option value="path">小路</option></select>
+          <input id="e-lanes" type="number" placeholder="车道数" min="1" max="20" style="flex:0.6">
+        </div>
+        <select id="e-surface"><option value="">路面类型</option><option value="asphalt">沥青</option><option value="concrete">水泥</option><option value="gravel">碎石</option><option value="dirt">土路</option></select>
+      </div>
+      <div class="type-fields" id="e-building-fields" style="display:none">
+        <div class="row">
+          <select id="e-building-type"><option value="">建筑类型</option><option value="residential">住宅</option><option value="commercial">商业</option><option value="industrial">工业</option><option value="public">公共建筑</option><option value="other">其他</option></select>
+          <input id="e-floors" type="number" placeholder="楼层数" min="1" max="200" style="flex:0.6">
+        </div>
+      </div>
+      <div class="admin-fields">
+        <label>行政归属</label>
+        <div class="grid">
+          <input id="e-admin-province" list="admin-province-list" placeholder="省 / 自治区">
+          <input id="e-admin-county" list="admin-county-list" placeholder="县 / 区">
+          <input id="e-admin-town" list="admin-town-list" placeholder="乡镇">
+          <input id="e-admin-village" list="admin-village-list" placeholder="村">
+          <input id="e-admin-region" class="full" placeholder="区域 / 片区（可选）">
+        </div>
+        <div class="status" id="e-admin-status">未匹配到行政区边界</div>
+        <div class="actions">
+          <button id="e-fill-boundary" type="button">使用当前高亮行政区</button>
+          <button id="e-clear-admin" type="button">清空行政归属</button>
+        </div>
+      </div>
+      <div class="btns"><button id="e-del" class="d">删除</button><button id="e-cancel">取消</button><button id="e-save" class="p">保存</button></div>
+    </div>
+  </div>
+
+  <datalist id="admin-province-list"></datalist>
+  <datalist id="admin-county-list"></datalist>
+  <datalist id="admin-town-list"></datalist>
+  <datalist id="admin-village-list"></datalist>
+
+  <div id="d-local-boundary-library" class="dialog hide">
+    <div class="dialog-c wide">
+      <h3>📚 本地边界库</h3>
+      <div class="ci" id="local-boundary-info">读取本地 data/admin-geojson 目录中的边界文件</div>
+      <div id="local-boundary-list"><div class="empty">正在读取本地边界库...</div></div>
+      <div class="btns"><button id="local-boundary-close">关闭</button></div>
+    </div>
+  </div>
+
+  <!-- AI 提取配置对话框 -->
+  <div id="d-extract-config" class="dialog hide">
+    <div class="dialog-c wide">
+      <h3>🔍 AI 提取设置</h3>
+      <div class="ci" id="extract-area-info"></div>
+      <label>AI 引擎</label>
+      <div class="engine-options" id="engine-opts">
+        <button class="engine-opt sel" data-engine="overpass">🗺️ OSM数据查询<br><small>免费·稳定·社区标注</small></button>
+        <button class="engine-opt" data-engine="color">🎨 图像分割<br><small>颜色识别·离线</small></button>
+        <button class="engine-opt" data-engine="onnx">🧠 ONNX AI<br><small>浏览器推理</small></button>
+      </div>
+      <label>提取目标</label>
+      <div class="target-checks" id="target-btns">
+        <button class="target-btn on" data-target="buildings"><span class="dot"></span>🏢 建筑物</button>
+        <button class="target-btn on" data-target="roads"><span class="dot"></span>🛣️ 道路</button>
+        <button class="target-btn" data-target="water"><span class="dot"></span>💧 水体</button>
+        <button class="target-btn" data-target="vegetation"><span class="dot"></span>🌿 植被</button>
+        <button class="target-btn" data-target="farmland"><span class="dot"></span>🌾 农田</button>
+      </div>
+      <div id="extract-progress">
+        <div class="bar-bg"><div class="bar-fill" id="bar-fill"></div></div>
+        <div class="bar-text" id="bar-text">准备中...</div>
+      </div>
+      <div id="extract-results">
+        <div class="stat"><span>🏢 建筑物</span><span class="cnt" id="cnt-buildings">0</span></div>
+        <div class="stat"><span>🛣️ 道路</span><span class="cnt" id="cnt-roads">0</span></div>
+        <div class="stat"><span>💧 水体</span><span class="cnt" id="cnt-water">0</span></div>
+        <div class="stat"><span>🌿 植被</span><span class="cnt" id="cnt-vegetation">0</span></div>
+        <div class="stat"><span>🌾 农田</span><span class="cnt" id="cnt-farmland">0</span></div>
+      </div>
+      <div class="btns" style="margin-top:8px">
+        <button id="extract-cancel">取消</button>
+        <button id="extract-start" class="g">🚀 开始提取</button>
+        <button id="extract-import" class="p" style="display:none">📥 导入选中</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script type="module" src="src/renderer/app.js"></script>
+</body>
+</html>

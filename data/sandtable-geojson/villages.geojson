@@ -1,0 +1,1542 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.80034317325,
+          33.75885626025
+        ]
+      },
+      "properties": {
+        "name": "珠扣玛",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "雁石坪镇",
+        "village": "珠扣玛",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.80034317325,
+          33.75885626025
+        ]
+      },
+      "properties": {
+        "name": "那前玛",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "雁石坪镇",
+        "village": "那前玛",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.80034317325,
+          33.75885626025
+        ]
+      },
+      "properties": {
+        "name": "不玛代",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "雁石坪镇",
+        "village": "不玛代",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.80034317325,
+          33.75885626025
+        ]
+      },
+      "properties": {
+        "name": "色赤玛",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "雁石坪镇",
+        "village": "色赤玛",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.80034317325,
+          33.75885626025
+        ]
+      },
+      "properties": {
+        "name": "欧随玛",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "雁石坪镇",
+        "village": "欧随玛",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.80034317325,
+          33.75885626025
+        ]
+      },
+      "properties": {
+        "name": "曲桑玛",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "雁石坪镇",
+        "village": "曲桑玛",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.3019469,
+          33.0930876
+        ]
+      },
+      "properties": {
+        "name": "念美龙仁玛",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "雁石坪镇",
+        "village": "念美龙仁玛",
+        "level": "village",
+        "source": "OpenStreetMap",
+        "osm_id": 7714308500
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.80034317325,
+          33.75885626025
+        ]
+      },
+      "properties": {
+        "name": "雁石坪",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "雁石坪镇",
+        "village": "雁石坪",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.80034317325,
+          33.75885626025
+        ]
+      },
+      "properties": {
+        "name": "美若来登",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "雁石坪镇",
+        "village": "美若来登",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.8437354,
+          31.9761737
+        ]
+      },
+      "properties": {
+        "name": "吉扎布卡",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "强玛镇",
+        "village": "吉扎布卡",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.8437354,
+          31.9761737
+        ]
+      },
+      "properties": {
+        "name": "热卡",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "强玛镇",
+        "village": "热卡",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.8437354,
+          31.9761737
+        ]
+      },
+      "properties": {
+        "name": "酿心",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "强玛镇",
+        "village": "酿心",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.8437354,
+          31.9761737
+        ]
+      },
+      "properties": {
+        "name": "觉毛",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "强玛镇",
+        "village": "觉毛",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.8437354,
+          31.9761737
+        ]
+      },
+      "properties": {
+        "name": "巴格",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "强玛镇",
+        "village": "巴格",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.451532,
+          32.1607463
+        ]
+      },
+      "properties": {
+        "name": "措玛",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（Nominatim 估算）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "措玛乡",
+        "village": "措玛",
+        "level": "village",
+        "source": "Nominatim"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.451532,
+          32.1607463
+        ]
+      },
+      "properties": {
+        "name": "纳巧",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "措玛乡",
+        "village": "纳巧",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.451532,
+          32.1607463
+        ]
+      },
+      "properties": {
+        "name": "龙千",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "措玛乡",
+        "village": "龙千",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.451532,
+          32.1607463
+        ]
+      },
+      "properties": {
+        "name": "赤龙玛扣",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "措玛乡",
+        "village": "赤龙玛扣",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.451532,
+          32.1607463
+        ]
+      },
+      "properties": {
+        "name": "其郝",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "措玛乡",
+        "village": "其郝",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.1766864,
+          31.9323292
+        ]
+      },
+      "properties": {
+        "name": "托嘎",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "措玛乡",
+        "village": "托嘎",
+        "level": "village",
+        "source": "OpenStreetMap",
+        "osm_id": 11515615300
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.1755124,
+          32.3471225
+        ]
+      },
+      "properties": {
+        "name": "加西",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "措玛乡",
+        "village": "加西",
+        "level": "village",
+        "source": "OpenStreetMap",
+        "osm_id": 11515615298
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.3077429,
+          32.1114185
+        ]
+      },
+      "properties": {
+        "name": "西夏尔来",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "措玛乡",
+        "village": "西夏尔来",
+        "level": "village",
+        "source": "OpenStreetMap",
+        "osm_id": 11515615279
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.451532,
+          32.1607463
+        ]
+      },
+      "properties": {
+        "name": "西厂日",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "措玛乡",
+        "village": "西厂日",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.4303677,
+          32.1402439
+        ]
+      },
+      "properties": {
+        "name": "色那",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "措玛乡",
+        "village": "色那",
+        "level": "village",
+        "source": "OpenStreetMap",
+        "osm_id": 11515615277
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.451532,
+          32.1607463
+        ]
+      },
+      "properties": {
+        "name": "无包",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "措玛乡",
+        "village": "无包",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.451532,
+          32.1607463
+        ]
+      },
+      "properties": {
+        "name": "龙那玛",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "措玛乡",
+        "village": "龙那玛",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.451532,
+          32.1607463
+        ]
+      },
+      "properties": {
+        "name": "多来",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "措玛乡",
+        "village": "多来",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.451532,
+          32.1607463
+        ]
+      },
+      "properties": {
+        "name": "查宗",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "措玛乡",
+        "village": "查宗",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.451532,
+          32.1607463
+        ]
+      },
+      "properties": {
+        "name": "求龙",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "措玛乡",
+        "village": "求龙",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1951406,
+          32.270597
+        ]
+      },
+      "properties": {
+        "name": "穷玛冉",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "滩堆乡",
+        "village": "穷玛冉",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1951406,
+          32.270597
+        ]
+      },
+      "properties": {
+        "name": "热美",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "滩堆乡",
+        "village": "热美",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.2219795,
+          32.3252593
+        ]
+      },
+      "properties": {
+        "name": "索托强玛",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "滩堆乡",
+        "village": "索托强玛",
+        "level": "village",
+        "source": "OpenStreetMap",
+        "osm_id": 13116401723
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1951406,
+          32.270597
+        ]
+      },
+      "properties": {
+        "name": "藏千",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "滩堆乡",
+        "village": "藏千",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1687698,
+          32.2214605
+        ]
+      },
+      "properties": {
+        "name": "龙木",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "滩堆乡",
+        "village": "龙木",
+        "level": "village",
+        "source": "OpenStreetMap",
+        "osm_id": 5580124380
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1951406,
+          32.270597
+        ]
+      },
+      "properties": {
+        "name": "多嘎尔",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "滩堆乡",
+        "village": "多嘎尔",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.4093248,
+          32.8381206
+        ]
+      },
+      "properties": {
+        "name": "色务机该",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "岗尼乡",
+        "village": "色务机该",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.4093248,
+          32.8381206
+        ]
+      },
+      "properties": {
+        "name": "龙木",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "岗尼乡",
+        "village": "龙木",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.4093248,
+          32.8381206
+        ]
+      },
+      "properties": {
+        "name": "岗尼",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "岗尼乡",
+        "village": "岗尼",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.4093248,
+          32.8381206
+        ]
+      },
+      "properties": {
+        "name": "尼玛龙",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "岗尼乡",
+        "village": "尼玛龙",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.4093248,
+          32.8381206
+        ]
+      },
+      "properties": {
+        "name": "纳那查",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "岗尼乡",
+        "village": "纳那查",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.4093248,
+          32.8381206
+        ]
+      },
+      "properties": {
+        "name": "嘎冉日龙",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "岗尼乡",
+        "village": "嘎冉日龙",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.4093248,
+          32.8381206
+        ]
+      },
+      "properties": {
+        "name": "多玛梅日共我",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "岗尼乡",
+        "village": "多玛梅日共我",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.5531908,
+          33.9980284
+        ]
+      },
+      "properties": {
+        "name": "日玛",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "玛曲乡",
+        "village": "日玛",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.3295761,
+          33.6179462
+        ]
+      },
+      "properties": {
+        "name": "玛如",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（Nominatim 估算）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "玛曲乡",
+        "village": "玛如",
+        "level": "village",
+        "source": "Nominatim"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.5531908,
+          33.9980284
+        ]
+      },
+      "properties": {
+        "name": "莎保",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "玛曲乡",
+        "village": "莎保",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.5531908,
+          33.9980284
+        ]
+      },
+      "properties": {
+        "name": "口匝粮",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "玛曲乡",
+        "village": "口匝粮",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.5531908,
+          33.9980284
+        ]
+      },
+      "properties": {
+        "name": "纳友",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "玛曲乡",
+        "village": "纳友",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.5531908,
+          33.9980284
+        ]
+      },
+      "properties": {
+        "name": "扎碎",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "玛曲乡",
+        "village": "扎碎",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.5531908,
+          33.9980284
+        ]
+      },
+      "properties": {
+        "name": "要格",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "玛曲乡",
+        "village": "要格",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.5531908,
+          33.9980284
+        ]
+      },
+      "properties": {
+        "name": "欧如",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "玛曲乡",
+        "village": "欧如",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.5847559,
+          32.9848865
+        ]
+      },
+      "properties": {
+        "name": "复生",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "玛荣乡",
+        "village": "复生",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.5847559,
+          32.9848865
+        ]
+      },
+      "properties": {
+        "name": "布资",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "玛荣乡",
+        "village": "布资",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.7016658,
+          33.1065872
+        ]
+      },
+      "properties": {
+        "name": "草巴",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "玛荣乡",
+        "village": "草巴",
+        "level": "village",
+        "source": "OpenStreetMap",
+        "osm_id": 13531426177
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.5847559,
+          32.9848865
+        ]
+      },
+      "properties": {
+        "name": "万石",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "玛荣乡",
+        "village": "万石",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          93.1737163,
+          33.7141784
+        ]
+      },
+      "properties": {
+        "name": "曲超公玛",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "多玛乡",
+        "village": "曲超公玛",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          93.1737163,
+          33.7141784
+        ]
+      },
+      "properties": {
+        "name": "东日",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "多玛乡",
+        "village": "东日",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          93.1737163,
+          33.7141784
+        ]
+      },
+      "properties": {
+        "name": "碎纳泥",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "多玛乡",
+        "village": "碎纳泥",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          93.1737163,
+          33.7141784
+        ]
+      },
+      "properties": {
+        "name": "嘎仁",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "多玛乡",
+        "village": "嘎仁",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          93.1737163,
+          33.7141784
+        ]
+      },
+      "properties": {
+        "name": "其绕岗仁",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "多玛乡",
+        "village": "其绕岗仁",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          93.1737163,
+          33.7141784
+        ]
+      },
+      "properties": {
+        "name": "嘎百",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "多玛乡",
+        "village": "嘎百",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          93.1737163,
+          33.7141784
+        ]
+      },
+      "properties": {
+        "name": "姆迟泥",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "多玛乡",
+        "village": "姆迟泥",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.936750608375,
+          32.63018150925
+        ]
+      },
+      "properties": {
+        "name": "罗布玉泽",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "帮麦乡",
+        "village": "罗布玉泽",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.936750608375,
+          32.63018150925
+        ]
+      },
+      "properties": {
+        "name": "果仓玛",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "帮麦乡",
+        "village": "果仓玛",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.936750608375,
+          32.63018150925
+        ]
+      },
+      "properties": {
+        "name": "多卓",
+        "category": "village",
+        "light": false,
+        "sign": true,
+        "note": "行政村只做标牌不亮灯（边界内估算位置，待人工核对）",
+        "province": "西藏自治区",
+        "county": "安多县",
+        "town": "帮麦乡",
+        "village": "多卓",
+        "level": "village",
+        "source": "derived",
+        "needs_review": true
+      }
+    }
+  ],
+  "properties": {
+    "category": "village"
+  }
+}

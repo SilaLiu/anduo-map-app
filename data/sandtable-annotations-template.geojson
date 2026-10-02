@@ -1,0 +1,192 @@
+{
+  "type": "FeatureCollection",
+  "properties": {
+    "title": "安多县沙盘制作——乡镇标注模板",
+    "source": "data/sandtable-requirements.json + data/admin-geojson/xizang/anduo/town_centers.json",
+    "description": "以乡镇政府驻地为中心的点位标注，用于沙盘制作规划。行政村、道路、寺庙、河流、湖泊、山峰因缺少坐标未在此模板中生成。"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [91.7081969, 31.9858263] },
+      "properties": {
+        "name": "扎仁镇",
+        "category": "town",
+        "town_type": "镇",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "12个行政村名称待补充"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [92.069453, 33.59756] },
+      "properties": {
+        "name": "雁石坪镇",
+        "category": "town",
+        "town_type": "镇",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "9个行政村：珠扣玛、那前玛、不玛代、色赤玛、欧随玛、曲桑玛、念美龙仁玛、雁石坪、美若来登；雁石坪居委会（雁石坪社区）"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [90.8437354, 31.9761737] },
+      "properties": {
+        "name": "强玛镇",
+        "category": "town",
+        "town_type": "镇",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "5个行政村：吉扎布卡、热卡、酿心、觉毛、巴格；强玛社区（镇政府驻地）"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [91.6784084, 32.2617876] },
+      "properties": {
+        "name": "帕那镇",
+        "category": "town",
+        "town_type": "镇",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": true,
+        "note": "县政府所在地；4个行政村名称待补充"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [91.451532, 32.1607463] },
+      "properties": {
+        "name": "措玛乡",
+        "category": "town",
+        "town_type": "乡",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "15个行政村：措玛、纳巧、龙千、赤龙玛扣、其郝、托嘎、加西、西夏尔来、西厂日、色那、无包、龙那玛、多来、查宗、求龙"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [92.1951406, 32.270597] },
+      "properties": {
+        "name": "滩堆乡",
+        "category": "town",
+        "town_type": "乡",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "6个行政村：穷玛冉、热美、索托强玛、藏千、龙木、多嘎尔"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [90.6142667, 32.46436] },
+      "properties": {
+        "name": "扎曲乡",
+        "category": "town",
+        "town_type": "乡",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "5个行政村名称待补充"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [91.4093248, 32.8381206] },
+      "properties": {
+        "name": "岗尼乡",
+        "category": "town",
+        "town_type": "乡",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "7个行政村：色务机该、龙木、岗尼、尼玛龙、纳那查、嘎冉日龙、多玛梅日共我"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [91.5531908, 33.9980284] },
+      "properties": {
+        "name": "玛曲乡",
+        "category": "town",
+        "town_type": "乡",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "8个行政村：日玛、玛如、莎保、口匝粮、纳友、扎碎、要格、欧如"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [90.2949866, 33.7424767] },
+      "properties": {
+        "name": "色务乡",
+        "category": "town",
+        "town_type": "乡",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "10个行政村名称待补充"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [92.5847559, 32.9848865] },
+      "properties": {
+        "name": "玛荣乡",
+        "category": "town",
+        "town_type": "乡",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "4个行政村：复生、布资、草巴、万石"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [93.1737163, 33.7141784] },
+      "properties": {
+        "name": "多玛乡",
+        "category": "town",
+        "town_type": "乡",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "7个行政村：曲超公玛、东日、碎纳泥、嘎仁、其绕岗仁、嘎百、姆迟泥"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [92.0382233, 32.4718558] },
+      "properties": {
+        "name": "帮麦乡",
+        "category": "town",
+        "town_type": "乡",
+        "boundary_light": "红色灯带",
+        "building_light": true,
+        "sign": true,
+        "is_county_seat": false,
+        "note": "8个行政村，已知3个：罗布玉泽、果仓玛、多卓；另5个待补充"
+      }
+    }
+  ]
+}

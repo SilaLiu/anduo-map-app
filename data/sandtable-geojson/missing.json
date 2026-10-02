@@ -1,0 +1,565 @@
+{
+  "total": 94,
+  "items": [
+    {
+      "town": "扎仁镇",
+      "name": "未知行政村1",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "扎仁镇",
+      "name": "未知行政村2",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "扎仁镇",
+      "name": "未知行政村3",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "扎仁镇",
+      "name": "未知行政村4",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "扎仁镇",
+      "name": "未知行政村5",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "扎仁镇",
+      "name": "未知行政村6",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "扎仁镇",
+      "name": "未知行政村7",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "扎仁镇",
+      "name": "未知行政村8",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "扎仁镇",
+      "name": "未知行政村9",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "扎仁镇",
+      "name": "未知行政村10",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "扎仁镇",
+      "name": "未知行政村11",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "扎仁镇",
+      "name": "未知行政村12",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "雁石坪镇",
+      "name": "珠扣玛",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "雁石坪镇",
+      "name": "那前玛",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "雁石坪镇",
+      "name": "不玛代",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "雁石坪镇",
+      "name": "色赤玛",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "雁石坪镇",
+      "name": "欧随玛",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "雁石坪镇",
+      "name": "曲桑玛",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "雁石坪镇",
+      "name": "雁石坪",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "雁石坪镇",
+      "name": "美若来登",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "强玛镇",
+      "name": "吉扎布卡",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "强玛镇",
+      "name": "热卡",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "强玛镇",
+      "name": "酿心",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "强玛镇",
+      "name": "觉毛",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "强玛镇",
+      "name": "巴格",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "帕那镇",
+      "name": "未知行政村1",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "帕那镇",
+      "name": "未知行政村2",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "帕那镇",
+      "name": "未知行政村3",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "帕那镇",
+      "name": "未知行政村4",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "措玛乡",
+      "name": "纳巧",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "措玛乡",
+      "name": "龙千",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "措玛乡",
+      "name": "赤龙玛扣",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "措玛乡",
+      "name": "其郝",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "措玛乡",
+      "name": "西厂日",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "措玛乡",
+      "name": "无包",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "措玛乡",
+      "name": "龙那玛",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "措玛乡",
+      "name": "多来",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "措玛乡",
+      "name": "查宗",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "措玛乡",
+      "name": "求龙",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "滩堆乡",
+      "name": "穷玛冉",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "滩堆乡",
+      "name": "热美",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "滩堆乡",
+      "name": "藏千",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "滩堆乡",
+      "name": "多嘎尔",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "扎曲乡",
+      "name": "未知行政村1",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "扎曲乡",
+      "name": "未知行政村2",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "扎曲乡",
+      "name": "未知行政村3",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "扎曲乡",
+      "name": "未知行政村4",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "扎曲乡",
+      "name": "未知行政村5",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "岗尼乡",
+      "name": "色务机该",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "岗尼乡",
+      "name": "龙木",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "岗尼乡",
+      "name": "岗尼",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "岗尼乡",
+      "name": "尼玛龙",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "岗尼乡",
+      "name": "纳那查",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "岗尼乡",
+      "name": "嘎冉日龙",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "岗尼乡",
+      "name": "多玛梅日共我",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "玛曲乡",
+      "name": "日玛",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "玛曲乡",
+      "name": "莎保",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "玛曲乡",
+      "name": "口匝粮",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "玛曲乡",
+      "name": "纳友",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "玛曲乡",
+      "name": "扎碎",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "玛曲乡",
+      "name": "要格",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "玛曲乡",
+      "name": "欧如",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "色务乡",
+      "name": "未知行政村1",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "色务乡",
+      "name": "未知行政村2",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "色务乡",
+      "name": "未知行政村3",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "色务乡",
+      "name": "未知行政村4",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "色务乡",
+      "name": "未知行政村5",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "色务乡",
+      "name": "未知行政村6",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "色务乡",
+      "name": "未知行政村7",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "色务乡",
+      "name": "未知行政村8",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "色务乡",
+      "name": "未知行政村9",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "色务乡",
+      "name": "未知行政村10",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "玛荣乡",
+      "name": "复生",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "玛荣乡",
+      "name": "布资",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "玛荣乡",
+      "name": "万石",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "多玛乡",
+      "name": "曲超公玛",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "多玛乡",
+      "name": "东日",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "多玛乡",
+      "name": "碎纳泥",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "多玛乡",
+      "name": "嘎仁",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "多玛乡",
+      "name": "其绕岗仁",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "多玛乡",
+      "name": "嘎百",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "多玛乡",
+      "name": "姆迟泥",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "帮麦乡",
+      "name": "罗布玉泽",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "帮麦乡",
+      "name": "果仓玛",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "帮麦乡",
+      "name": "多卓",
+      "category": "village",
+      "reason": "OSM/Nominatim 未匹配，已生成边界内占位点"
+    },
+    {
+      "town": "帮麦乡",
+      "name": "未知行政村1",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "帮麦乡",
+      "name": "未知行政村2",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "帮麦乡",
+      "name": "未知行政村3",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "帮麦乡",
+      "name": "未知行政村4",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "town": "帮麦乡",
+      "name": "未知行政村5",
+      "category": "village",
+      "reason": "名称待补充"
+    },
+    {
+      "name": "通往邻县主干道",
+      "category": "road",
+      "reason": "描述性类别，需人工在地图上勾画"
+    },
+    {
+      "name": "待建高速",
+      "category": "road",
+      "reason": "描述性类别，需人工在地图上勾画"
+    },
+    {
+      "name": "岗加巧巴",
+      "category": "mountain",
+      "reason": "OSM/Nominatim 未匹配"
+    },
+    {
+      "name": "托尔久山",
+      "category": "mountain",
+      "reason": "OSM/Nominatim 未匹配"
+    }
+  ]
+}
