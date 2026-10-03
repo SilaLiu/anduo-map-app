@@ -27,6 +27,9 @@ import {
   Crosshair,
   Save,
   RefreshCw,
+  Volume2,
+  VolumeX,
+  Square,
 } from 'lucide-vue-next';
 import type { Feature, FeatureCollection } from 'geojson';
 import type {
@@ -55,8 +58,9 @@ import {
 } from './domain/geo';
 import { buildTasks, categories, statusLabels, type MissingItem } from './domain/tasks';
 import { anduoBoundaries, isAnduoFeature } from './domain/anduoScope';
-import { featureDetails } from './domain/featureDetails';
+import { featureDetails, featureSpeechText } from './domain/featureDetails';
 import { loadAnduoBoundaryData } from './services/anduoData';
+import { isSpeechSynthesisSupported, speakText, stopSpeaking } from './services/speech';
 import {
   dataJson,
   downloadJson,
@@ -132,6 +136,9 @@ const filteredBoundaries = computed(() =>
 const selectedDetails = computed(() =>
   selection.value ? featureDetails(selection.value.feature) : [],
 );
+const speechSupported = ref(isSpeechSynthesisSupported());
+const speechEnabled = ref(true);
+const speechActive = ref(false);
 const filteredLibrary = computed(() =>
   library.value
     .filter((i) => `${i.name} ${i.path}`.toLowerCase().includes(librarySearch.value.toLowerCase()))
@@ -147,6 +154,34 @@ const tabs = [
 let revision = 0;
 function report(error: unknown) {
   notice.value = error instanceof Error ? error.message : String(error);
+}
+let speechToken = 0;
+function stopFeatureSpeech() {
+  speechToken++;
+  stopSpeaking();
+  speechActive.value = false;
+}
+function speakSelection() {
+  if (!selection.value || !speechEnabled.value || !speechSupported.value) return;
+  stopFeatureSpeech();
+  const token = speechToken;
+  const started = speakText(featureSpeechText(selection.value.feature), {
+    onStart: () => {
+      if (token === speechToken) speechActive.value = true;
+    },
+    onEnd: () => {
+      if (token === speechToken) speechActive.value = false;
+    },
+    onError: () => {
+      if (token === speechToken) speechActive.value = false;
+    },
+  });
+  if (!started) speechActive.value = false;
+}
+function toggleSpeech() {
+  speechEnabled.value = !speechEnabled.value;
+  if (speechEnabled.value) speakSelection();
+  else stopFeatureSpeech();
 }
 function snapshot(): Workspace {
   return { version: 2, annotations: annotations.value, boundaries: boundaries.value };
@@ -219,12 +254,14 @@ async function init() {
 function openEditor(a: Annotation) {
   editor.value = JSON.parse(JSON.stringify(a));
   editorVersion.value++;
+  stopFeatureSpeech();
   selection.value = null;
 }
 function startDraw(value: DrawMode, task?: Task) {
   if (!ready.value || loadFailed.value) return;
   pendingTask.value = task || null;
   drawMode.value = value;
+  stopFeatureSpeech();
   selection.value = null;
   if (value === 'extract') {
     tab.value = 'extraction';
@@ -275,6 +312,7 @@ async function deleteAnnotation(id: string) {
   if (!confirm('删除此标注？')) return;
   annotations.value = annotations.value.filter((a) => a.id !== id);
   editor.value = null;
+  stopFeatureSpeech();
   selection.value = null;
   await persist();
 }
@@ -295,11 +333,14 @@ function focusTask(task: Task) {
   if (f) {
     map.value?.focus(f);
     selection.value = { feature: f, group: task.annotation ? 'annotations' : task.category };
+    if (speechEnabled.value) speakSelection();
   }
 }
 function pickFeature(feature: Feature, group: string) {
   selection.value = { feature, group };
   map.value?.focus(feature);
+  if (speechEnabled.value) speakSelection();
+  else stopFeatureSpeech();
 }
 function chooseImport(kind: typeof importKind.value) {
   importKind.value = kind;
@@ -364,12 +405,14 @@ async function clearAnnotations() {
   if (!annotations.value.length || !confirm(`清空全部 ${annotations.value.length} 个标注？`))
     return;
   annotations.value = [];
+  stopFeatureSpeech();
   selection.value = null;
   await persist();
 }
 async function clearBoundaries() {
   if (!boundaries.value.length || !confirm('清空全部行政边界？')) return;
   boundaries.value = [];
+  stopFeatureSpeech();
   selection.value = null;
   await persist();
 }
@@ -487,6 +530,7 @@ onMounted(() => {
   window.addEventListener('beforeunload', beforeUnload);
 });
 onBeforeUnmount(() => {
+  stopFeatureSpeech();
   window.removeEventListener('online', networkChanged);
   window.removeEventListener('offline', networkChanged);
   window.removeEventListener('keydown', keydown);
@@ -892,11 +936,49 @@ onBeforeUnmount(() => {
               class="icon-button"
               title="关闭详情"
               aria-label="关闭详情"
-              @click="selection = null"
+              @click="
+                stopFeatureSpeech();
+                selection = null;
+              "
             >
               <X :size="16" />
             </button>
           </header>
+          <div class="speech-controls" aria-label="语音播报">
+            <button
+              class="icon-button"
+              :class="{ active: speechEnabled }"
+              :disabled="!speechSupported"
+              :title="speechEnabled ? '关闭自动播报' : '开启自动播报'"
+              :aria-label="speechEnabled ? '关闭自动播报' : '开启自动播报'"
+              :aria-pressed="speechEnabled"
+              @click="toggleSpeech"
+            >
+              <Volume2 v-if="speechEnabled" :size="16" /><VolumeX v-else :size="16" />
+            </button>
+            <button
+              class="icon-button"
+              :disabled="!speechSupported"
+              title="重新播报"
+              aria-label="重新播报"
+              @click="speakSelection"
+            >
+              <Volume2 :size="16" />
+            </button>
+            <button
+              class="icon-button"
+              :disabled="!speechActive"
+              title="停止播报"
+              aria-label="停止播报"
+              @click="stopFeatureSpeech"
+            >
+              <Square :size="14" />
+            </button>
+            <span v-if="speechSupported" class="speech-status">{{
+              speechActive ? '正在播报' : speechEnabled ? '点击后自动播报' : '自动播报已关闭'
+            }}</span>
+            <span v-else class="speech-status">当前浏览器不支持语音</span>
+          </div>
           <dl class="feature-details">
             <div v-for="row in selectedDetails" :key="row.label">
               <dt>{{ row.label }}</dt>

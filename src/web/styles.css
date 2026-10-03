@@ -695,6 +695,34 @@ progress::-moz-progress-bar {
   padding-top: 8px;
   font-size: 14px;
 }
+.speech-controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 30px;
+  border-top: 1px solid #edf1f0;
+  border-bottom: 1px solid #edf1f0;
+  margin: 5px 0 4px;
+}
+.speech-controls .icon-button {
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+  flex-basis: 28px;
+}
+.speech-controls .icon-button.active {
+  color: var(--accent);
+  background: #e4f1ec;
+}
+.speech-status {
+  min-width: 0;
+  margin-left: 4px;
+  overflow: hidden;
+  color: #73857f;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .selection-panel p {
   font-size: 12px;
   color: #73857f;

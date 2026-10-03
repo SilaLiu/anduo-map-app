@@ -63,3 +63,10 @@ export function featureDetails(feature: Feature): { label: string; value: string
   ];
   return rows.filter((row) => row.value);
 }
+
+export function featureSpeechText(feature: Feature): string {
+  const name = text(feature.properties?.name) || '未命名要素';
+  const details = featureDetails(feature).map((row) => `${row.label}${row.value}`);
+  if (feature.properties?.needs_review) details.push('位置待核实');
+  return [name, ...details].join('。');
+}
