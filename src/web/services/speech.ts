@@ -44,7 +44,7 @@ export function speakText(text: string, callbacks: SpeechCallbacks = {}): boolea
   stopSpeaking();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'zh-CN';
-  utterance.rate = 0.82;
+  utterance.rate = 1;
   utterance.pitch = 0.92;
   utterance.volume = 0.92;
   const chineseVoice = preferredChineseVoice();

@@ -12,6 +12,7 @@ describe('feature speech text', () => {
         buildingType: 'public',
         admin: { county: '安多县', town: '帕那镇' },
         note: '教学与办公',
+        source: '现场核实',
       },
     };
     const spoken = featureSpeechText(feature);
@@ -20,5 +21,6 @@ describe('feature speech text', () => {
     expect(spoken).toContain('行政归属为安多县，帕那镇');
     expect(spoken).toContain('备注，教学与办公');
     expect(spoken).not.toContain('坐标');
+    expect(spoken).not.toContain('现场核实');
   });
 });
