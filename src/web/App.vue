@@ -524,6 +524,7 @@ function beforeUnload(event: BeforeUnloadEvent) {
 }
 onMounted(() => {
   void init();
+  if (speechSupported.value) window.speechSynthesis.getVoices();
   window.addEventListener('online', networkChanged);
   window.addEventListener('offline', networkChanged);
   window.addEventListener('keydown', keydown);

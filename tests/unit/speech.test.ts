@@ -16,8 +16,9 @@ describe('feature speech text', () => {
     };
     const spoken = featureSpeechText(feature);
     expect(spoken).toContain('安多县教学楼');
-    expect(spoken).toContain('类型公共建筑');
-    expect(spoken).toContain('行政归属安多县 / 帕那镇');
-    expect(spoken).toContain('备注教学与办公');
+    expect(spoken).toContain('类型是公共建筑');
+    expect(spoken).toContain('行政归属为安多县，帕那镇');
+    expect(spoken).toContain('备注，教学与办公');
+    expect(spoken).not.toContain('坐标');
   });
 });

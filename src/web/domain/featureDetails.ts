@@ -66,7 +66,28 @@ export function featureDetails(feature: Feature): { label: string; value: string
 
 export function featureSpeechText(feature: Feature): string {
   const name = text(feature.properties?.name) || '未命名要素';
-  const details = featureDetails(feature).map((row) => `${row.label}${row.value}`);
+  const rows = featureDetails(feature);
+  const hasUsefulDetails = rows.some((row) => row.label !== '坐标');
+  const details = rows
+    .filter((row) => hasUsefulDetails || row.label === '坐标')
+    .filter((row) => row.label !== '坐标' || !hasUsefulDetails)
+    .map((row) => {
+      if (row.label === '类型') return `类型是${row.value}`;
+      if (row.label === '行政归属') return `行政归属为${row.value.replaceAll(' / ', '，')}`;
+      if (row.label === '地址') return `地址是${row.value}`;
+      if (row.label === '简介') return `简介，${row.value}`;
+      if (row.label === '备注') return `备注，${row.value}`;
+      if (row.label === '楼层') return `楼层为${row.value}层`;
+      if (row.label === '道路等级') return `道路等级为${row.value}`;
+      if (row.label === '车道数') return `车道数为${row.value}`;
+      if (row.label === '路面') return `路面为${row.value}`;
+      if (row.label === '海拔') return `海拔约${row.value}`;
+      if (row.label === '电话') return `联系电话是${row.value}`;
+      if (row.label === '开放时间') return `开放时间是${row.value}`;
+      if (row.label === '来源') return `数据来源为${row.value}`;
+      if (row.label === '坐标') return `大致坐标为${row.value.replace(',', '，')}`;
+      return `${row.label}为${row.value}`;
+    });
   if (feature.properties?.needs_review) details.push('位置待核实');
   return [name, ...details].join('。');
 }
