@@ -114,6 +114,8 @@ pnpm preview
 
 将 `web-dist/` 整个目录部署到静态 HTTP(S) 服务。支持子目录部署，Cesium Workers、Assets、Widgets 与内置数据会一起复制。请通过 HTTP(S) 访问，不要直接双击 `index.html`。
 
+GitHub Pages 部署已配置 `.github/workflows/deploy-pages.yml`，仓库 Pages Source 已设为 **GitHub Actions**。每次推送 `main` 会自动构建并发布到 `https://silaliu.github.io/anduo-map-app/`。首次启用或重新部署后，页面生效通常需要等待 1 到 3 分钟。
+
 浏览器测试需要本机 Google Chrome，并先启动开发服务：
 
 ```bash
