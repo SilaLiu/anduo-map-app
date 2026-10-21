@@ -538,6 +538,9 @@ progress::-moz-progress-bar {
   border-bottom: 1px solid #f0f3f2;
   min-height: 62px;
 }
+.boundary-town-row {
+  padding-left: calc(12px + 2em);
+}
 .feature-main {
   flex: 1;
   min-width: 0;

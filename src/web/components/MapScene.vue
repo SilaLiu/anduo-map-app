@@ -7,9 +7,13 @@ import {
   CesiumTerrainProvider,
   ColorMaterialProperty,
   PolylineDashMaterialProperty,
+  PolylineOutlineMaterialProperty,
   createWorldTerrainAsync,
   Ion,
   Cartesian3,
+  BoundingSphere,
+  HeadingPitchRange,
+  EasingFunction,
   Cartographic,
   Cartesian2,
   Math as CesiumMath,
@@ -19,6 +23,8 @@ import {
   Color,
   Entity,
   PointGraphics,
+  BillboardGraphics,
+  HorizontalOrigin,
   LabelGraphics,
   HeightReference,
   DistanceDisplayCondition,
@@ -33,6 +39,7 @@ import {
 import type { Feature, FeatureCollection, Position } from 'geojson';
 import { pointOnFeature } from '@turf/turf';
 import { geometryBounds, collection } from '../domain/geo';
+import { flagMarkerImage } from '../domain/flagMarker';
 import { mapLayers } from '../domain/referenceLayers';
 import { roadLabelText } from '../domain/roadLabels';
 import { navigationRouteStyle } from '../domain/routeStyle';
@@ -144,7 +151,10 @@ function layoutLabels() {
       if (entity.point && entity.point.show?.getValue(time) !== eligible)
         entity.point.show = new ConstantProperty(eligible);
       if (!entity.label) continue;
-      let show = eligible && props.labels;
+      // Keep township captions: topographic tiles do not label every township.
+      // Suppress only duplicate village captions on this basemap.
+      let show =
+        eligible && props.labels && !(props.basemap === 'topographic' && group === 'villages');
       const position = entity.position?.getValue(time);
       const screen = position && SceneTransforms.worldToWindowCoordinates(viewer.scene, position);
       if (
@@ -263,10 +273,17 @@ async function updateSource(group: string, features: Feature[], color: string) {
           entity.polygon.material = new ColorMaterialProperty(
             Color.fromCssColorString(
               county ? '#ffd740' : townColors[String(p.name)] || color,
-            ).withAlpha(county ? 0.035 : 0.24),
+            ).withAlpha(county ? 0.01 : props.basemap === 'topographic' ? 0.12 : 0.14),
           );
           entity.polygon.outline = new ConstantProperty(false);
         }
+      }
+      if (group === 'neighborCounties' && entity.polyline) {
+        entity.polyline.material = new ColorMaterialProperty(
+          Color.fromCssColorString('#a8afb5').withAlpha(0.25),
+        );
+        entity.polyline.width = new ConstantProperty(1);
+        entity.polyline.zIndex = new ConstantProperty(0);
       }
       const roadText = roadLabelText(group, p);
       if (['rivers', 'lakes'].includes(group) && p.name) {
@@ -291,7 +308,23 @@ async function updateSource(group: string, features: Feature[], color: string) {
         Color.fromCssColorString(
           group === 'annotations' || group === 'preview' ? p.color || color : color,
         ) || Color.WHITE;
-      if (entity.billboard) {
+      const useFlag =
+        ['annotations', 'preview'].includes(group) &&
+        feature.geometry?.type === 'Point' &&
+        p.markerStyle === 'flag';
+      if (useFlag) {
+        entity.point = undefined;
+        entity.billboard = new BillboardGraphics({
+          image: flagMarkerImage(p.color),
+          width: 36,
+          height: 42,
+          horizontalOrigin: HorizontalOrigin.LEFT,
+          verticalOrigin: VerticalOrigin.BOTTOM,
+          pixelOffset: new Cartesian2(-6, 0),
+          heightReference: HeightReference.CLAMP_TO_GROUND,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        });
+      } else if (entity.billboard) {
         entity.billboard = undefined;
         entity.point = new PointGraphics({
           pixelSize:
@@ -319,7 +352,7 @@ async function updateSource(group: string, features: Feature[], color: string) {
           showBackground: true,
           backgroundColor: Color.BLACK.withAlpha(0.7),
           backgroundPadding: new Cartesian2(5, 3),
-          pixelOffset: new Cartesian2(0, -15),
+          pixelOffset: new Cartesian2(0, useFlag ? -46 : -15),
           verticalOrigin: VerticalOrigin.BOTTOM,
           heightReference: HeightReference.CLAMP_TO_GROUND,
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
@@ -396,11 +429,16 @@ async function updateSource(group: string, features: Feature[], color: string) {
             polyline: {
               positions: Cartesian3.fromDegreesArray(ring.flatMap((point) => [point[0], point[1]])),
               clampToGround: true,
-              width: county ? 5 : 2,
-              material: Color.fromCssColorString(
-                county ? '#ffd740' : townColors[String(p.name)] || color,
-              ),
-              zIndex: county ? 100 : 10,
+              width: county ? 6 : 1.25,
+              material: county
+                ? new PolylineOutlineMaterialProperty({
+                    color: Color.fromCssColorString('#ffd740'),
+                    outlineColor: Color.fromCssColorString('#594500'),
+                    outlineWidth: 1,
+                  })
+                : Color.fromCssColorString(townColors[String(p.name)] || color).withAlpha(0.7),
+              // Keep the county perimeter above all other ground lines, including routes.
+              zIndex: county ? 20000 : 10,
             },
           });
           featureByEntity.set(edge, { feature, group });
@@ -572,18 +610,106 @@ function finish() {
   clearDraft();
   emit('vertices', 0);
 }
+function fitTemples() {
+  if (!viewer) return;
+  const features = (props.layers.temples?.features || []).filter(
+    (f) => f.geometry?.type === 'Point',
+  );
+  if (!features.length) return;
+  const bounds = features.map(geometryBounds);
+  const west = Math.min(...bounds.map((b) => b[0]));
+  const south = Math.min(...bounds.map((b) => b[1]));
+  const east = Math.max(...bounds.map((b) => b[2]));
+  const north = Math.max(...bounds.map((b) => b[3]));
+  const padX = Math.max((east - west) * 0.25, 0.03);
+  const padY = Math.max((north - south) * 0.3, 0.03);
+  viewer.camera.cancelFlight();
+  viewer.camera.flyTo({
+    destination: Rectangle.fromDegrees(west - padX, south - padY * 2, east + padX, north + padY),
+    orientation: { heading: 0, pitch: -Math.PI / 2, roll: 0 },
+    duration: 1.8,
+    easingFunction: EasingFunction.CUBIC_IN_OUT,
+  });
+}
+function fitCountyTraffic() {
+  if (!viewer) return;
+  const county = props.boundaries.find((feature) => isAnduoCounty(feature.properties || {}));
+  if (!county) {
+    home();
+    return;
+  }
+  const [west, south, east, north] = geometryBounds(county);
+  const padX = Math.max((east - west) * 0.08, 0.01);
+  const padY = Math.max((north - south) * 0.08, 0.01);
+  viewer.camera.cancelFlight();
+  viewer.camera.flyTo({
+    destination: Rectangle.fromDegrees(west - padX, south - padY, east + padX, north + padY),
+    orientation: { heading: 0, pitch: -Math.PI / 2, roll: 0 },
+    duration: 1.8,
+    easingFunction: EasingFunction.CUBIC_IN_OUT,
+  });
+}
+function fitCentralTowns() {
+  if (!viewer || viewer.isDestroyed()) return;
+  // Geographic overview only; independent of any table entries or deployment records.
+  viewer.camera.cancelFlight();
+  viewer.camera.flyTo({
+    destination: Rectangle.fromDegrees(90.95, 31.9, 92.45, 33.05),
+    orientation: { heading: 0, pitch: -Math.PI / 2, roll: 0 },
+    duration: 1.8,
+    easingFunction: EasingFunction.CUBIC_IN_OUT,
+  });
+}
 function home() {
-  const county = props.boundaries.find((f) => f.properties?.name === '安多县');
-  if (county) focus(county);
-  else
-    viewer?.camera.flyTo({
-      destination: Cartesian3.fromDegrees(91.682, 32.262, 550000),
-      duration: 0.7,
-    });
+  if (!viewer) return;
+  viewer.camera.cancelFlight();
+  // Closer regional overview: county seat and central/southern towns.
+  viewer.camera.flyTo({
+    destination: Rectangle.fromDegrees(90.55, 31.35, 92.85, 33.1),
+    orientation: { heading: 0, pitch: -Math.PI / 2, roll: 0 },
+    duration: 2.4,
+    easingFunction: EasingFunction.CUBIC_IN_OUT,
+  });
 }
 function focus(feature: Feature) {
   if (!viewer) return;
   const [west, south, east, north] = geometryBounds(feature);
+  if (viewer.scene.mode === SceneMode.SCENE3D) {
+    const camera = viewer.camera;
+    const canvas = viewer.scene.canvas;
+    const ray = camera.getPickRay(new Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2));
+    const currentTarget = ray && viewer.scene.globe.pick(ray, viewer.scene);
+    const range = currentTarget
+      ? Cartesian3.distance(camera.positionWC, currentTarget)
+      : Math.max(camera.positionCartographic.height, 1000);
+    const town = props.layers.towns?.features.find(
+      (item) =>
+        item.properties?.name === feature.properties?.name && item.geometry?.type === 'Point',
+    );
+    const anchor = feature.geometry.type === 'Point' ? feature : town;
+    const coordinates = anchor?.geometry.type === 'Point' ? anchor.geometry.coordinates : undefined;
+    const target = Cartographic.fromDegrees(
+      coordinates?.[0] ?? (west + east) / 2,
+      coordinates?.[1] ?? (south + north) / 2,
+    );
+    target.height = viewer.scene.globe.getHeight(target) || 0;
+    const distance = anchor ? Math.min(Math.max(range, 1500), 10000) : Math.max(range, 100);
+    const pitch = Math.min(camera.pitch, CesiumMath.toRadians(-20));
+    camera.cancelFlight();
+    camera.flyToBoundingSphere(
+      new BoundingSphere(
+        Cartesian3.fromRadians(target.longitude, target.latitude, target.height),
+        0,
+      ),
+      {
+        offset: new HeadingPitchRange(camera.heading, pitch, distance),
+        duration: 1.8,
+        easingFunction: EasingFunction.CUBIC_IN_OUT,
+        pitchAdjustHeight: Number.POSITIVE_INFINITY,
+      },
+    );
+    return;
+  }
   if (east - west < 0.0005 && north - south < 0.0005) {
     const p = feature.properties || {};
     const height = p.buildingType || p.category === 'building' || p.tags?.building ? 650 : 8000;
@@ -663,7 +789,28 @@ watch(
   },
   { deep: true },
 );
-watch(() => props.basemap, setImagery);
+watch(
+  () => props.basemap,
+  () => {
+    setImagery();
+    const source = sources.get('boundaries');
+    if (source && viewer) {
+      for (const entity of source.entities.values) {
+        if (!entity.polygon) continue;
+        const p = entity.properties?.getValue(viewer.clock.currentTime) || {};
+        const county = isAnduoCounty(p);
+        entity.polygon.material = new ColorMaterialProperty(
+          Color.fromCssColorString(
+            county ? '#ffd740' : townColors[String(p.name)] || '#ffd740',
+          ).withAlpha(county ? 0.01 : props.basemap === 'topographic' ? 0.12 : 0.14),
+        );
+      }
+    }
+    lastLabelLayout = 0;
+    layoutLabels();
+    requestRender();
+  },
+);
 watch(() => props.terrain, setTerrain);
 watch(
   () => props.buildings3d,
@@ -866,7 +1013,18 @@ onBeforeUnmount(() => {
   routeEntity = undefined;
   viewer = undefined;
 });
-defineExpose({ focus, home, zoom, north, tilt, undo, finish });
+defineExpose({
+  focus,
+  fitTemples,
+  fitCountyTraffic,
+  fitCentralTowns,
+  home,
+  zoom,
+  north,
+  tilt,
+  undo,
+  finish,
+});
 </script>
 
 <template>

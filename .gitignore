@@ -7,6 +7,8 @@ playwright-report/
 .env
 .env.*
 !.env.example
+# Private local deployment records and editor backups: never commit.
+/militia-deployment.local.*
 .DS_Store
 index.html.bak
 *.log

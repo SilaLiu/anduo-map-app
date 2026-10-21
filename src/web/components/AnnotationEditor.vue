@@ -13,6 +13,7 @@ const emit = defineEmits<{
 }>();
 const dialog = ref<HTMLDialogElement>();
 const draft = ref<Annotation>(JSON.parse(JSON.stringify(props.annotation)));
+draft.value.properties.markerStyle ??= 'dot';
 const error = ref('');
 const colors = ['#e34b62', '#ecac35', '#139c80', '#2787cd', '#9564c8', '#e782b2'];
 onMounted(() => dialog.value?.showModal());
@@ -74,6 +75,13 @@ function save() {
             title="自定义颜色"
           />
         </fieldset>
+        <label v-if="draft.geometry.type === 'Point'">
+          标注样式
+          <select v-model="draft.properties.markerStyle">
+            <option value="dot">圆点</option>
+            <option value="flag">🚩 小旗帜</option>
+          </select>
+        </label>
         <div v-if="draft.geometry.type === 'Point'" class="field-grid">
           <label
             >经度<input

@@ -1,5 +1,5 @@
 export const roadClasses = [
-  { key: 'highways', name: '国道', prefix: 'G', color: '#ffd580' },
+  { key: 'highways', name: '国道', prefix: 'G', color: '#ff0000' },
   { key: 'provincialRoads', name: '省道', prefix: 'S', color: '#36c98f' },
   { key: 'countyRoads', name: '县道', prefix: 'X', color: '#54baff' },
   { key: 'townshipRoads', name: '乡道', prefix: 'Y', color: '#d98ae8' },

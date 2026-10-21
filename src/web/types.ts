@@ -14,6 +14,7 @@ export interface AnnotationProperties {
   name: string;
   note: string;
   color: string;
+  markerStyle?: 'dot' | 'flag';
   admin: Admin;
   created_at: string;
   sandtableKey?: string;

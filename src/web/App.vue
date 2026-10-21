@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import DeploymentDemo from './components/DeploymentDemo.vue';
 import { templeRoster } from './domain/templeRoster';
 import { computed, nextTick, onMounted, onBeforeUnmount, reactive, ref, shallowRef } from 'vue';
 import {
@@ -84,7 +85,7 @@ const loading = ref(true),
   ready = ref(false);
 const saveStatus = ref('未载入');
 const notice = ref('');
-const tab = ref('tasks');
+const tab = ref('boundaries');
 const search = ref('');
 const sidebar = ref(true);
 const map = ref<InstanceType<typeof MapScene>>();
@@ -96,7 +97,11 @@ const basemap = ref('satellite');
 const activeTheme = ref('');
 function selectTheme(key: string) {
   activeTheme.value = key;
-  if (key) basemap.value = key === 'theme-militia' ? 'topographic' : 'street';
+  basemap.value = !key ? 'satellite' : key === 'theme-militia' ? 'topographic' : 'street';
+  if (!key) map.value?.home();
+  if (key === 'theme-temples') map.value?.fitTemples();
+  if (key === 'theme-roads') map.value?.fitCountyTraffic();
+  if (key === 'theme-militia') map.value?.fitCentralTowns();
 }
 const mode = ref<'2D' | '3D'>('3D');
 const terrainAvailable = !!(
@@ -832,7 +837,12 @@ onBeforeUnmount(() => {
             </button>
           </div>
           <div class="panel-scroll">
-            <div v-for="b in filteredBoundaries" :key="boundaryKey(b)" class="feature-row">
+            <div
+              v-for="b in filteredBoundaries"
+              :key="boundaryKey(b)"
+              class="feature-row"
+              :class="{ 'boundary-town-row': /[乡镇]$/.test(String(b.properties?.name || '')) }"
+            >
               <button
                 class="feature-main"
                 @click="pickFeature(b, 'boundaries')"
@@ -1060,7 +1070,6 @@ onBeforeUnmount(() => {
                   <th>教派</th>
                   <th>核定人员</th>
                   <th>备注</th>
-                  <th>定位状态</th>
                 </tr>
               </thead>
               <tbody>
@@ -1081,19 +1090,6 @@ onBeforeUnmount(() => {
                     </button>
                   </td>
                   <td v-for="(value, column) in entry.details" :key="column">{{ value }}</td>
-                  <td>
-                    {{
-                      !entry.feature
-                        ? '待定位'
-                        : entry.feature.properties?.village_match_pending
-                          ? `候选村参考点：${entry.feature.properties.reference_name}（村名待核实，非寺庙精确位置）`
-                          : entry.feature.properties?.location_precision === 'village_reference'
-                            ? '村级参考点，非寺庙精确位置'
-                            : entry.feature.properties?.needs_review
-                              ? '估算位置，待核实'
-                              : '来源坐标，未实地核验'
-                    }}
-                  </td>
                 </tr>
               </tbody>
             </table>
@@ -1313,8 +1309,9 @@ onBeforeUnmount(() => {
             </button>
           </div>
         </div>
+        <DeploymentDemo v-if="activeTheme === 'theme-militia' && !drawMode" />
         <MapLegend
-          v-show="!drawMode && activeTheme !== 'theme-temples'"
+          v-show="!drawMode && !['theme-temples', 'theme-militia'].includes(activeTheme)"
           :visibility="sceneVisibility"
           :layers="layers"
         />
