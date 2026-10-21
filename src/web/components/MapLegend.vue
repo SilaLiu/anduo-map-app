@@ -9,6 +9,7 @@ defineProps<{ visibility: Record<string, boolean>; layers: Layers }>();
 const expanded = ref(true);
 const entries = [
   ...roadClasses.map((road) => ({ key: road.key, name: road.name, symbol: 'line' })),
+  { key: 'localRoads', name: '地方连接道路（等级待核实）', symbol: 'line' },
   { key: 'railways', name: '铁路', symbol: 'rail' },
   { key: 'countySeats', name: '县城参考定位', symbol: 'point' },
   { key: 'towns', name: '乡镇驻地', symbol: 'point' },

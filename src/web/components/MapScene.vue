@@ -67,6 +67,7 @@ const emit = defineEmits<{
   vertices: [count: number];
   position: [lng: number, lat: number, height: number];
   terrainStatus: [status: string];
+  basemapFallback: [];
   routePoint: [position: Position];
   popupPosition: [position: { x: number; y: number } | null];
 }>();
@@ -335,6 +336,22 @@ async function updateSource(group: string, features: Feature[], color: string) {
         );
       if (entity.polyline && ['annotations', 'preview'].includes(group))
         entity.polyline.material = new ColorMaterialProperty(tint);
+      if (
+        entity.polyline &&
+        ['highways', 'provincialRoads', 'countyRoads', 'townshipRoads', 'localRoads'].includes(
+          group,
+        )
+      ) {
+        // Explicitly override source styles and keep minor roads below numbered routes.
+        entity.polyline.material = new ColorMaterialProperty(tint);
+        entity.polyline.width = new ConstantProperty(
+          group === 'highways' ? 5 : group === 'provincialRoads' ? 4 : 3,
+        );
+        entity.polyline.zIndex = new ConstantProperty(
+          group === 'highways' ? 50 : group === 'provincialRoads' ? 40 : 30,
+        );
+        if (group === 'localRoads') entity.polyline.zIndex = new ConstantProperty(20);
+      }
       if (entity.polyline && group === 'railways') {
         entity.polyline.material = new PolylineDashMaterialProperty({
           color: Color.WHITE,
@@ -410,26 +427,35 @@ function setImagery() {
     return;
   }
   const url =
-    props.basemap === 'street'
-      ? 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
-      : props.basemap === 'tianditu'
-        ? `https://t0.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${key}`
-        : import.meta.env.VITE_IMAGERY_URL ||
-          'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+    props.basemap === 'topographic'
+      ? 'https://a.tile.opentopomap.org/{z}/{x}/{y}.png'
+      : props.basemap === 'street'
+        ? 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+        : props.basemap === 'tianditu'
+          ? `https://t0.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${key}`
+          : import.meta.env.VITE_IMAGERY_URL ||
+            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
   const provider = new UrlTemplateImageryProvider({
     url,
-    maximumLevel: 19,
+    maximumLevel: props.basemap === 'topographic' ? 17 : 19,
     credit:
-      props.basemap === 'street'
-        ? '© OpenStreetMap contributors'
-        : props.basemap === 'tianditu'
-          ? '© 天地图'
-          : import.meta.env.VITE_IMAGERY_CREDIT || 'Tiles © Esri, Maxar, Earthstar Geographics',
+      props.basemap === 'topographic'
+        ? 'Map data © OpenStreetMap contributors, SRTM | Map style © OpenTopoMap (CC-BY-SA)'
+        : props.basemap === 'street'
+          ? '© OpenStreetMap contributors'
+          : props.basemap === 'tianditu'
+            ? '© 天地图'
+            : import.meta.env.VITE_IMAGERY_CREDIT || 'Tiles © Esri, Maxar, Earthstar Geographics',
   });
   let reported = false;
   provider.errorEvent.addEventListener(() => {
     if (!reported && gen === imageGeneration) {
       reported = true;
+      if (props.basemap === 'topographic') {
+        emit('error', '地形底图瓦片加载失败，已切换到街道地图；可手动重新选择地形底图');
+        emit('basemapFallback');
+        return;
+      }
       emit('error', '部分底图瓦片加载失败，请检查网络或切换底图');
     }
   });

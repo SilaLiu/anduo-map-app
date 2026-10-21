@@ -63,7 +63,7 @@ import { buildTasks, categories, statusLabels, type MissingItem } from './domain
 import { anduoBoundaries, isAnduoFeature } from './domain/anduoScope';
 import { featureDetails, featureSpeechText } from './domain/featureDetails';
 import { mapLayers, referenceLayers } from './domain/referenceLayers';
-import { thematicBasemaps, thematicVisibility } from './domain/thematicBasemaps';
+import { thematicBasemaps, thematicVisibility, thematicLayerKeys } from './domain/thematicBasemaps';
 import { loadAnduoBoundaryData } from './services/anduoData';
 import { isSpeechSynthesisSupported, speakText, stopSpeaking } from './services/speech';
 import {
@@ -94,6 +94,10 @@ const selection = ref<{ feature: Feature; group: string } | null>(null);
 const popupPosition = ref<{ x: number; y: number } | null>(null);
 const basemap = ref('satellite');
 const activeTheme = ref('');
+function selectTheme(key: string) {
+  activeTheme.value = key;
+  if (key) basemap.value = key === 'theme-militia' ? 'topographic' : 'street';
+}
 const mode = ref<'2D' | '3D'>('3D');
 const terrainAvailable = !!(
   import.meta.env.VITE_TERRAIN_URL || import.meta.env.VITE_CESIUM_ION_TOKEN
@@ -137,6 +141,7 @@ const visibility = reactive<Record<string, boolean>>({
   provincialRoads: true,
   countyRoads: true,
   townshipRoads: true,
+  localRoads: true,
   railways: true,
   neighborCounties: true,
   rivers: true,
@@ -147,6 +152,12 @@ const visibility = reactive<Record<string, boolean>>({
 const online = ref(navigator.onLine);
 const selectedTheme = computed(() =>
   thematicBasemaps.find((item) => item.key === activeTheme.value),
+);
+const themeFeatureCount = computed(() =>
+  thematicLayerKeys(activeTheme.value).reduce(
+    (total, key) => total + (layers.value[key]?.features.length || 0),
+    0,
+  ),
 );
 const sceneVisibility = computed(() => thematicVisibility(activeTheme.value, visibility));
 const templeEntries = computed(() =>
@@ -866,13 +877,17 @@ onBeforeUnmount(() => {
             <select v-model="basemap" aria-label="底图">
               <option value="satellite">卫星影像 · Esri</option>
               <option value="street">街道地图 · OpenStreetMap</option>
+              <option
+                v-if="activeTheme === 'theme-militia' || basemap === 'topographic'"
+                value="topographic"
+              >
+                地形地貌 · OpenTopoMap
+              </option>
             </select>
             <p v-if="selectedTheme" class="setting-value">
               当前底图叠加安多县专题；点击地图上方“综合”恢复业务图层设置。
               {{
-                layers[selectedTheme.layer]?.features.length
-                  ? `已加载 ${layers[selectedTheme.layer].features.length} 条，覆盖可能不完整。`
-                  : '暂无数据'
+                themeFeatureCount ? `已加载 ${themeFeatureCount} 条，覆盖可能不完整。` : '暂无数据'
               }}
             </p>
             <h3>场景</h3>
@@ -967,6 +982,7 @@ onBeforeUnmount(() => {
           @vertices="vertexCount = $event"
           @position="(lng, lat, height) => (coordinate = [lng, lat, height])"
           @terrain-status="terrainStatus = $event"
+          @basemap-fallback="basemap = 'street'"
         />
         <div v-if="loading || loadFailed" class="loading-state">
           <Globe2 :size="38" /><strong>{{
@@ -1008,7 +1024,7 @@ onBeforeUnmount(() => {
             <button
               :class="{ active: !activeTheme }"
               :aria-pressed="!activeTheme"
-              @click="activeTheme = ''"
+              @click="selectTheme('')"
             >
               综合
             </button>
@@ -1018,7 +1034,7 @@ onBeforeUnmount(() => {
               :class="{ active: activeTheme === theme.key }"
               :aria-pressed="activeTheme === theme.key"
               :title="theme.name"
-              @click="activeTheme = activeTheme === theme.key ? '' : theme.key"
+              @click="selectTheme(theme.key)"
             >
               {{ theme.name.replace('图（安多县）', '') }}
             </button>
@@ -1306,8 +1322,7 @@ onBeforeUnmount(() => {
           <span class="live-dot"></span>{{ terrainStatus
           }}<span class="caption-divider"></span>WGS84
           <span v-if="selectedTheme">
-            · {{ selectedTheme.name
-            }}{{ layers[selectedTheme.layer]?.features.length ? '' : ' · 暂无数据' }}</span
+            · {{ selectedTheme.name }}{{ themeFeatureCount ? '' : ' · 暂无数据' }}</span
           >
         </div>
       </main>

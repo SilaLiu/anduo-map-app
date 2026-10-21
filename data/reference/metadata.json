@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-21T02:20:06.398Z",
+  "generatedAt": "2026-10-21T05:50:03.162Z",
   "cacheFallback": true,
   "coverage": "历史安多缓存 + 六个周边县城区域OSM线路；不保证路网完整或可通行",
   "bufferKm": 50,
   "roadCounts": {
     "highways": 497,
     "provincialRoads": 280,
-    "countyRoads": 0,
+    "countyRoads": 17,
     "townshipRoads": 0
   },
   "bounds": [
@@ -38,5 +38,15 @@
     "osmTimestamp": "2026-10-21T02:15:35Z",
     "source": "OpenStreetMap / https://maps.mail.ru/osm/tools/overpass/api/interpreter"
   },
-  "railwayCount": 817
+  "railwayCount": 817,
+  "lastImport": {
+    "osmTimestamp": "2026-10-21T05:47:42Z",
+    "counts": {
+      "highways": 0,
+      "provincialRoads": 0,
+      "countyRoads": 17,
+      "townshipRoads": 0,
+      "railways": 0
+    }
+  }
 }
