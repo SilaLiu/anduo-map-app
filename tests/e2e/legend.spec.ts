@@ -38,7 +38,7 @@ for (const viewport of [
     expect(viewport.width - (box.x + box.width)).toBeLessThanOrEqual(16);
     expect(box.y + box.height).toBeLessThan(viewport.height);
     const mapBox = (await page.locator('.map-area').boundingBox())!;
-    expect(mapBox.y + mapBox.height - (box.y + box.height)).toBeCloseTo(0, 0);
+    expect(mapBox.y + mapBox.height - (box.y + box.height)).toBeCloseTo(16, 0);
     await heading.click();
     await expect(heading).toHaveAttribute('aria-expanded', 'false');
     await expect(legend.getByText('国道', { exact: true })).toBeHidden();

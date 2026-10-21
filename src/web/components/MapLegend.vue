@@ -72,7 +72,7 @@ const entries = [
 .map-legend {
   position: absolute;
   right: 16px;
-  bottom: 0;
+  bottom: 16px;
   width: 272px;
   max-width: calc(100% - 84px);
   max-height: 40%;
@@ -164,8 +164,8 @@ const entries = [
 @media (max-width: 680px) {
   .map-legend {
     width: 246px;
-    right: 10px;
-    bottom: 0;
+    right: 16px;
+    bottom: 16px;
     max-height: 30%;
   }
   .map-legend-grid {

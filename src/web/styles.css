@@ -87,15 +87,20 @@ button.primary {
 .route-card {
   position: absolute;
   top: 58px;
-  right: 16px;
+  right: 72px;
   z-index: 3;
   display: grid;
   gap: 5px;
-  min-width: 220px;
+  min-width: 0;
+  width: 340px;
+  max-width: calc(100% - 88px);
+  max-height: calc(100% - 100px);
+  overflow: auto;
+  overflow-wrap: anywhere;
   padding: 10px 12px;
   border: 1px solid #d2e4de;
   border-radius: 7px;
-  background: #fffffff2;
+  background: #fff;
   box-shadow: 0 3px 14px #17352b24;
   font-size: 12px;
 }
@@ -671,7 +676,7 @@ progress::-moz-progress-bar {
 }
 .temple-roster {
   position: absolute;
-  bottom: 0;
+  bottom: 16px;
   right: 16px;
   width: 700px;
   z-index: 5;

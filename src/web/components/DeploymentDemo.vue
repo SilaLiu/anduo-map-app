@@ -95,7 +95,7 @@ function total(rows: ReturnType<typeof row>[]) {
 .deployment-demo {
   position: absolute;
   right: 16px;
-  bottom: 0;
+  bottom: 16px;
   z-index: 12;
   width: min(520px, calc(100% - 32px));
   max-height: 30%;
