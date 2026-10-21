@@ -31,7 +31,7 @@ import {
   VolumeX,
   Square,
 } from 'lucide-vue-next';
-import type { Feature, FeatureCollection } from 'geojson';
+import type { Feature, FeatureCollection, Position } from 'geojson';
 import type {
   Annotation,
   DrawMode,
@@ -43,6 +43,8 @@ import type {
   Workspace,
 } from './types';
 import MapScene from './components/MapScene.vue';
+import DriveSimulation from './components/DriveSimulation.vue';
+import MapLegend from './components/MapLegend.vue';
 import TaskPanel from './components/TaskPanel.vue';
 import AnnotationEditor from './components/AnnotationEditor.vue';
 import ExtractionPanel from './components/ExtractionPanel.vue';
@@ -59,6 +61,7 @@ import {
 import { buildTasks, categories, statusLabels, type MissingItem } from './domain/tasks';
 import { anduoBoundaries, isAnduoFeature } from './domain/anduoScope';
 import { featureDetails, featureSpeechText } from './domain/featureDetails';
+import { mapLayers, referenceLayers } from './domain/referenceLayers';
 import { loadAnduoBoundaryData } from './services/anduoData';
 import { isSpeechSynthesisSupported, speakText, stopSpeaking } from './services/speech';
 import {
@@ -95,9 +98,19 @@ const tiandituAvailable = !!import.meta.env.VITE_TIANDITU_KEY;
 const terrain = ref(terrainAvailable),
   terrainStatus = ref('椭球地表');
 const exaggeration = ref(1),
+  buildings3d = ref(true),
   labels = ref(true);
 const drawMode = ref<DrawMode | null>(null),
   vertexCount = ref(0);
+const routeMode = ref(false);
+const vehiclePosition = shallowRef<Position | null>(null);
+const routePoints = shallowRef<Position[]>([]);
+const routeGeometry = shallowRef<Position[]>([]);
+const routeDistance = ref<number | null>(null);
+const routeStatus = ref('');
+const routeDuration = ref<number | null>(null);
+let routeRequest: AbortController | undefined;
+let routeVersion = 0;
 const pendingTask = ref<Task | null>(null);
 const extractionArea = shallowRef<Feature | null>(null);
 const preview = shallowRef<Feature[]>([]);
@@ -115,7 +128,13 @@ const visibility = reactive<Record<string, boolean>>({
   preview: true,
   towns: true,
   villages: true,
-  roads: true,
+  roads: false,
+  highways: true,
+  provincialRoads: true,
+  countyRoads: true,
+  townshipRoads: true,
+  railways: true,
+  neighborCounties: true,
   rivers: true,
   lakes: true,
   mountains: true,
@@ -222,6 +241,14 @@ async function loadReferenceData() {
     else report(r.reason);
   });
   layers.value = next;
+  const references = await Promise.allSettled(
+    referenceLayers.map((c) => dataJson<FeatureCollection>(`reference/${c.key}.geojson`)),
+  );
+  references.forEach((result, index) => {
+    if (result.status === 'fulfilled') next[referenceLayers[index].key] = result.value;
+    else report(result.reason);
+  });
+  layers.value = { ...next };
 }
 async function init() {
   loading.value = true;
@@ -259,6 +286,7 @@ function openEditor(a: Annotation) {
 }
 function startDraw(value: DrawMode, task?: Task) {
   if (!ready.value || loadFailed.value) return;
+  if (routeMode.value) clearRoute();
   pendingTask.value = task || null;
   drawMode.value = value;
   stopFeatureSpeech();
@@ -341,6 +369,83 @@ function pickFeature(feature: Feature, group: string) {
   map.value?.focus(feature);
   if (speechEnabled.value) speakSelection();
   else stopFeatureSpeech();
+}
+function startRoute() {
+  clearRoute();
+  drawMode.value = null;
+  routeMode.value = true;
+  routePoints.value = [];
+  routeGeometry.value = [];
+  routeDistance.value = null;
+  routeStatus.value = '请在地图上点击起点';
+  selection.value = null;
+}
+function clearRoute() {
+  routeVersion++;
+  routeRequest?.abort();
+  routeDuration.value = null;
+  routeMode.value = false;
+  routePoints.value = [];
+  routeGeometry.value = [];
+  routeDistance.value = null;
+  routeStatus.value = '';
+}
+async function chooseRoutePoint(position: Position) {
+  if (!routeMode.value) return;
+  routeRequest?.abort();
+  const version = ++routeVersion;
+  routePoints.value =
+    routePoints.value.length === 1 ? [routePoints.value[0], position] : [position];
+  routeGeometry.value = [];
+  routeDistance.value = null;
+  routeDuration.value = null;
+  if (routePoints.value.length === 1) {
+    routeStatus.value = '起点已设置，请点击终点';
+    return;
+  }
+  const [start, end] = routePoints.value;
+  routeRequest = new AbortController();
+  const controller = routeRequest;
+  const timer = setTimeout(() => controller.abort(), 20000);
+  routeStatus.value = '正在请求高德驾车路线…';
+  try {
+    const query = new URLSearchParams({
+      origin: start.slice(0, 2).join(','),
+      destination: end.slice(0, 2).join(','),
+    });
+    const response = await fetch(`/api/route?${query}`, { signal: controller.signal });
+    const text = await response.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error('路线代理未启动或未部署，请启动 pnpm routing 并配置 /api/route 代理');
+    }
+    if (!response.ok) throw new Error(data.error || '路线代理不可用，请检查后台服务');
+    if (
+      !Array.isArray(data.coordinates) ||
+      data.coordinates.length < 2 ||
+      !data.coordinates.every(
+        (p: unknown) => Array.isArray(p) && p.length >= 2 && p.every(Number.isFinite),
+      ) ||
+      !Number.isFinite(data.distance) ||
+      data.distance < 0 ||
+      !Number.isFinite(data.duration)
+    )
+      throw new Error('路线服务返回数据无效');
+    if (version !== routeVersion) return;
+    routeGeometry.value = data.coordinates;
+    routeDistance.value = data.distance / 1000;
+    routeDuration.value = Math.ceil(data.duration / 60);
+    routeStatus.value = '高德驾车路线 · 仅供参考，请以实际通行情况为准';
+  } catch (error) {
+    if (version !== routeVersion) return;
+    routeStatus.value = controller.signal.aborted
+      ? '路线请求超时，请重新选择起终点'
+      : `未获得道路路线：${(error as Error).message === 'Failed to fetch' ? '无法连接路线代理，请检查网络和后台服务' : (error as Error).message}`;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 function chooseImport(kind: typeof importKind.value) {
   importKind.value = kind;
@@ -531,6 +636,8 @@ onMounted(() => {
   window.addEventListener('beforeunload', beforeUnload);
 });
 onBeforeUnmount(() => {
+  routeVersion++;
+  routeRequest?.abort();
   stopFeatureSpeech();
   window.removeEventListener('online', networkChanged);
   window.removeEventListener('offline', networkChanged);
@@ -753,6 +860,10 @@ onBeforeUnmount(() => {
                 :disabled="!terrain"
             /></label>
             <label class="toggle-row"
+              ><span>建筑物立体显示</span><input v-model="buildings3d" type="checkbox"
+            /></label>
+            <p class="setting-value">已有建筑面且填写楼层数时，按每层约 3 米示意挤出。</p>
+            <label class="toggle-row"
               ><span>地名标签</span><input v-model="labels" type="checkbox"
             /></label>
             <h3>业务图层</h3>
@@ -763,13 +874,17 @@ onBeforeUnmount(() => {
               ><span><i class="legend-swatch" style="background: #e34b62"></i>我的标注</span
               ><input v-model="visibility.annotations" type="checkbox"
             /></label>
-            <label v-for="c in categories" :key="c.key" class="toggle-row"
+            <label v-for="c in mapLayers" :key="c.key" class="toggle-row"
               ><span
                 ><i class="legend-swatch" :style="{ background: c.color }"></i>{{ c.name
-                }}<small>{{ layers[c.key]?.features.length || 0 }}</small></span
+                }}<small>{{ layers[c.key]?.features.length || '暂无数据' }}</small></span
               ><input v-model="visibility[c.key]" type="checkbox"
             /></label>
             <h3>工作区</h3>
+            <p class="muted">
+              交通参考数据来自历史 OSM
+              缓存，周边50公里覆盖尚不完整；缺失处不补线。国道黄色、省道绿色、县道蓝色、乡道紫色，铁路黑白相间。道路按G/S/X/Y现行编号分类，暂无数据不代表当地没有该类道路。
+            </p>
             <div class="stack-actions">
               <button @click="downloadJson(snapshot(), '安多县工作区.json')">
                 <Download :size="16" />导出完整备份</button
@@ -798,12 +913,17 @@ onBeforeUnmount(() => {
           :draw-mode="drawMode"
           :terrain="terrain"
           :exaggeration="exaggeration"
+          :buildings3d="buildings3d"
+          :route-mode="routeMode"
+          :route="routeGeometry"
+          :vehicle-position="vehiclePosition"
           :labels="labels"
           :preview="preview"
           :highlight="selection?.feature"
           @ready="ready = true"
           @error="report"
           @select="pickFeature"
+          @route-point="chooseRoutePoint"
           @draw="drawn"
           @vertices="vertexCount = $event"
           @position="(lng, lat, height) => (coordinate = [lng, lat, height])"
@@ -842,6 +962,16 @@ onBeforeUnmount(() => {
         </div>
         <div class="map-tools">
           <div class="tool-group">
+            <button
+              class="icon-button"
+              :class="{ active: routeMode }"
+              title="路线规划：点击起点和终点"
+              aria-label="路线规划：点击起点和终点"
+              :disabled="!ready"
+              @click="routeMode ? clearRoute() : startRoute()"
+            >
+              <Route :size="19" />
+            </button>
             <button
               class="icon-button"
               :class="{ active: drawMode === 'point' }"
@@ -898,7 +1028,17 @@ onBeforeUnmount(() => {
               aria-label="正北俯视"
               @click="map?.north()"
             >
-              <Compass :size="19" />
+              <Compass :size="19" /></button
+            ><button
+              class="icon-button"
+              title="倾斜观察三维地形"
+              aria-label="倾斜观察三维地形"
+              @click="
+                mode = '3D';
+                map?.tilt();
+              "
+            >
+              <Globe2 :size="19" />
             </button>
           </div>
         </div>
@@ -930,76 +1070,87 @@ onBeforeUnmount(() => {
             <X :size="18" />
           </button>
         </div>
-        <div v-if="selection && !drawMode" class="selection-panel">
-          <header>
-            <h2>{{ selection.feature.properties?.name || '未命名要素' }}</h2>
-            <button
-              class="icon-button"
-              title="关闭详情"
-              aria-label="关闭详情"
-              @click="
-                stopFeatureSpeech();
-                selection = null;
-              "
-            >
-              <X :size="16" />
-            </button>
-          </header>
-          <div class="speech-controls" aria-label="语音播报">
-            <button
-              class="icon-button"
-              :class="{ active: speechEnabled }"
-              :disabled="!speechSupported"
-              :title="speechEnabled ? '关闭自动播报' : '开启自动播报'"
-              :aria-label="speechEnabled ? '关闭自动播报' : '开启自动播报'"
-              :aria-pressed="speechEnabled"
-              @click="toggleSpeech"
-            >
-              <Volume2 v-if="speechEnabled" :size="16" /><VolumeX v-else :size="16" />
-            </button>
-            <button
-              class="icon-button"
-              :disabled="!speechSupported"
-              title="重新播报"
-              aria-label="重新播报"
-              @click="speakSelection"
-            >
-              <Volume2 :size="16" />
-            </button>
-            <button
-              class="icon-button"
-              :disabled="!speechActive"
-              title="停止播报"
-              aria-label="停止播报"
-              @click="stopFeatureSpeech"
-            >
-              <Square :size="14" />
-            </button>
-            <span v-if="speechSupported" class="speech-status">{{
-              speechActive ? '正在播报' : speechEnabled ? '点击后自动播报' : '自动播报已关闭'
-            }}</span>
-            <span v-else class="speech-status">当前浏览器不支持语音</span>
-          </div>
-          <dl class="feature-details">
-            <div v-for="row in selectedDetails" :key="row.label">
-              <dt>{{ row.label }}</dt>
-              <dd>{{ row.value }}</dd>
+        <div v-if="routeMode || routeDistance !== null" class="route-card">
+          <strong>路线规划</strong>
+          <span>{{ routeStatus }}</span>
+          <b v-if="routeDistance !== null">道路里程：{{ routeDistance.toFixed(2) }} 公里</b>
+          <span v-if="routeDuration !== null">预计 {{ routeDuration }} 分钟</span>
+          <button @click="clearRoute">清除路线</button>
+          <DriveSimulation :route="routeGeometry" @position="vehiclePosition = $event" />
+        </div>
+        <div v-show="!drawMode" class="map-info-stack">
+          <div v-if="selection" class="selection-panel">
+            <header>
+              <h2>{{ selection.feature.properties?.name || '未命名要素' }}</h2>
+              <button
+                class="icon-button"
+                title="关闭详情"
+                aria-label="关闭详情"
+                @click="
+                  stopFeatureSpeech();
+                  selection = null;
+                "
+              >
+                <X :size="16" />
+              </button>
+            </header>
+            <div class="speech-controls" aria-label="语音播报">
+              <button
+                class="icon-button"
+                :class="{ active: speechEnabled }"
+                :disabled="!speechSupported"
+                :title="speechEnabled ? '关闭自动播报' : '开启自动播报'"
+                :aria-label="speechEnabled ? '关闭自动播报' : '开启自动播报'"
+                :aria-pressed="speechEnabled"
+                @click="toggleSpeech"
+              >
+                <Volume2 v-if="speechEnabled" :size="16" /><VolumeX v-else :size="16" />
+              </button>
+              <button
+                class="icon-button"
+                :disabled="!speechSupported"
+                title="重新播报"
+                aria-label="重新播报"
+                @click="speakSelection"
+              >
+                <Volume2 :size="16" />
+              </button>
+              <button
+                class="icon-button"
+                :disabled="!speechActive"
+                title="停止播报"
+                aria-label="停止播报"
+                @click="stopFeatureSpeech"
+              >
+                <Square :size="14" />
+              </button>
+              <span v-if="speechSupported" class="speech-status">{{
+                speechActive ? '正在播报' : speechEnabled ? '点击后自动播报' : '自动播报已关闭'
+              }}</span>
+              <span v-else class="speech-status">当前浏览器不支持语音</span>
             </div>
-          </dl>
-          <p v-if="selection.feature.properties?.needs_review" class="estimated">
-            估算位置，待核实
-          </p>
-          <button
-            v-if="selection.group === 'annotations'"
-            @click="openEditor(selection.feature as Annotation)"
-          >
-            <Pencil :size="15" />编辑标注</button
-          ><button
-            v-else
-            @click="openEditor(assignAdmin(toAnnotation(selection.feature), boundaries))"
-          >
-            <Plus :size="15" />存为我的标注
-          </button>
+            <dl class="feature-details">
+              <div v-for="row in selectedDetails" :key="row.label">
+                <dt>{{ row.label }}</dt>
+                <dd>{{ row.value }}</dd>
+              </div>
+            </dl>
+            <p v-if="selection.feature.properties?.needs_review" class="estimated">
+              估算位置，待核实
+            </p>
+            <button
+              v-if="selection.group === 'annotations'"
+              @click="openEditor(selection.feature as Annotation)"
+            >
+              <Pencil :size="15" />编辑标注</button
+            ><button
+              v-else-if="selection.group !== 'neighborCounties'"
+              @click="openEditor(assignAdmin(toAnnotation(selection.feature), boundaries))"
+            >
+              <Plus :size="15" />存为我的标注
+            </button>
+          </div>
+          <MapLegend :visibility="visibility" :layers="layers" />
         </div>
         <div class="map-caption">
           <span class="live-dot"></span>{{ terrainStatus

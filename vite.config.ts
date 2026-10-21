@@ -4,6 +4,8 @@ import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig({
   base: './',
+  server: { proxy: { '/api/route': 'http://127.0.0.1:8787' } },
+  preview: { proxy: { '/api/route': 'http://127.0.0.1:8787' } },
   optimizeDeps: { entries: ['index.html'] },
   plugins: [
     vue(),

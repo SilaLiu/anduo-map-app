@@ -53,6 +53,8 @@ export function featureDetails(feature: Feature): { label: string; value: string
     { label: '备注', value: text(p.note) },
     { label: '楼层', value: text(p.floors || tags['building:levels']) },
     { label: '道路等级', value: labels[text(p.roadClass)] || text(p.roadClass) },
+    { label: '线路类型', value: text(p.road_type) },
+    { label: '线路编号', value: text(p.ref) },
     { label: '车道数', value: text(p.lanes) },
     { label: '路面', value: labels[text(p.surface)] || text(p.surface) },
     { label: '海拔', value: p.elevation_m ? `${p.elevation_m} 米` : text(tags.ele) },

@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-10-20T12:22:07.585Z",
+  "cacheFallback": true,
+  "coverage": "历史缓存，周边50公里覆盖不完整",
+  "bufferKm": 50,
+  "roadCounts": {
+    "highways": 75,
+    "provincialRoads": 50,
+    "countyRoads": 0,
+    "townshipRoads": 0
+  },
+  "bounds": [
+    88.16366426715086,
+    30.989000799909206,
+    94.07226657119654,
+    36.68664479928641
+  ],
+  "sources": [
+    "OpenStreetMap / Overpass",
+    "DataV Atlas"
+  ],
+  "note": "参考图层，不参与安多县行政归属。不同来源边界可能不一致；线路为与缓冲区相交的完整路段，非完整道路数据库。"
+}

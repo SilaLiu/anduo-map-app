@@ -6,6 +6,7 @@ import {
   EllipsoidTerrainProvider,
   CesiumTerrainProvider,
   ColorMaterialProperty,
+  PolylineDashMaterialProperty,
   createWorldTerrainAsync,
   Ion,
   Cartesian3,
@@ -30,7 +31,9 @@ import {
 } from 'cesium';
 import type { Feature, FeatureCollection, Position } from 'geojson';
 import { geometryBounds, collection } from '../domain/geo';
-import { categories } from '../domain/tasks';
+import { mapLayers } from '../domain/referenceLayers';
+import { navigationRouteStyle } from '../domain/routeStyle';
+import { pointOnFeature } from '@turf/turf';
 import type { Annotation, DrawMode, DrawResult, Layers } from '../types';
 
 const props = defineProps<{
@@ -43,7 +46,11 @@ const props = defineProps<{
   drawMode: DrawMode | null;
   terrain: boolean;
   exaggeration: number;
+  buildings3d: boolean;
   labels: boolean;
+  routeMode: boolean;
+  route: Position[];
+  vehiclePosition: Position | null;
   preview: Feature[];
   highlight?: Feature;
 }>();
@@ -55,6 +62,7 @@ const emit = defineEmits<{
   vertices: [count: number];
   position: [lng: number, lat: number, height: number];
   terrainStatus: [status: string];
+  routePoint: [position: Position];
 }>();
 const container = ref<HTMLDivElement>();
 const fatal = ref('');
@@ -68,9 +76,43 @@ const generations = new Map<string, number>();
 const featureByEntity = new WeakMap<Entity, { feature: Feature; group: string }>();
 let terrainGeneration = 0;
 let imageGeneration = 0;
+let routeEntity: Entity | undefined;
+let vehicleEntity: Entity | undefined;
+const vehicleImage = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="white" stroke="#087c42" stroke-width="3"/><path d="M13 26l3-10h16l3 10v8H13z" fill="#168bf0"/><path d="M18 18h12l2 7H16z" fill="#dff4ff"/><circle cx="17" cy="30" r="2" fill="white"/><circle cx="31" cy="30" r="2" fill="white"/></svg>');
+watch(() => props.vehiclePosition, (position) => {
+  if (!viewer) return;
+  if (!position) {
+    if (vehicleEntity) viewer.entities.remove(vehicleEntity);
+    vehicleEntity = undefined;
+  } else {
+    if (!vehicleEntity) vehicleEntity = viewer.entities.add({
+      billboard: { image: vehicleImage, width: 40, height: 40,
+        heightReference: HeightReference.CLAMP_TO_GROUND,
+        disableDepthTestDistance: Number.POSITIVE_INFINITY },
+    });
+    vehicleEntity.position = new ConstantPositionProperty(Cartesian3.fromDegrees(position[0], position[1]));
+  }
+  requestRender();
+});
 
 function requestRender() {
   viewer?.scene.requestRender();
+}
+function updateRoute(points: Position[]) {
+  if (!viewer) return;
+  if (routeEntity) viewer.entities.remove(routeEntity);
+  routeEntity = undefined;
+  if (points.length < 2) {
+    requestRender();
+    return;
+  }
+  routeEntity = viewer.entities.add({
+    polyline: {
+      positions: Cartesian3.fromDegreesArray(points.flatMap((p) => [p[0], p[1]])),
+      ...navigationRouteStyle(),
+    },
+  });
+  requestRender();
 }
 async function updateSource(group: string, features: Feature[], color: string) {
   if (!viewer || viewer.isDestroyed()) return;
@@ -79,9 +121,9 @@ async function updateSource(group: string, features: Feature[], color: string) {
   const data = collection(
     features.map((f, index) => {
       const geometry =
-        group === 'boundaries' && f.geometry.type === 'Polygon'
+        ['boundaries', 'neighborCounties'].includes(group) && f.geometry.type === 'Polygon'
           ? { type: 'MultiLineString' as const, coordinates: f.geometry.coordinates }
-          : group === 'boundaries' && f.geometry.type === 'MultiPolygon'
+          : ['boundaries', 'neighborCounties'].includes(group) && f.geometry.type === 'MultiPolygon'
             ? { type: 'MultiLineString' as const, coordinates: f.geometry.coordinates.flat() }
             : f.geometry;
       return {
@@ -105,6 +147,12 @@ async function updateSource(group: string, features: Feature[], color: string) {
       const p = entity.properties?.getValue(viewer.clock.currentTime) || {};
       const feature = features[p.__index];
       if (!feature) continue;
+      if (group === 'neighborCounties' && !entity.position) {
+        const center = pointOnFeature(feature).geometry.coordinates;
+        entity.position = new ConstantPositionProperty(
+          Cartesian3.fromDegrees(center[0], center[1]),
+        );
+      }
       if (group !== 'highlight') featureByEntity.set(entity, { feature, group });
       const tint =
         Color.fromCssColorString(
@@ -141,23 +189,36 @@ async function updateSource(group: string, features: Feature[], color: string) {
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
           distanceDisplayCondition: new DistanceDisplayCondition(
             0,
-            group === 'towns' ? 1200000 : 180000,
+            ['towns', 'neighborCounties'].includes(group) ? 2400000 : 180000,
           ),
           show: props.labels,
         });
       }
       if (entity.polyline && ['annotations', 'preview'].includes(group))
         entity.polyline.material = new ColorMaterialProperty(tint);
+      if (entity.polyline && group === 'railways') {
+        entity.polyline.material = new PolylineDashMaterialProperty({
+          color: Color.WHITE,
+          gapColor: Color.fromCssColorString('#354052'),
+          dashLength: 16,
+        });
+        entity.polyline.width = new ConstantProperty(4);
+      }
       if (entity.polygon && ['annotations', 'preview'].includes(group)) {
         entity.polygon.material = new ColorMaterialProperty(tint.withAlpha(0.5));
         const floors = Number(p.floors);
-        if (Number.isFinite(floors) && floors > 0) {
+        if (props.buildings3d && Number.isFinite(floors) && floors > 0) {
           entity.polygon.height = new ConstantProperty(0);
           entity.polygon.heightReference = new ConstantProperty(HeightReference.CLAMP_TO_GROUND);
           entity.polygon.extrudedHeight = new ConstantProperty(floors * 3);
           entity.polygon.extrudedHeightReference = new ConstantProperty(
             HeightReference.RELATIVE_TO_GROUND,
           );
+        } else {
+          entity.polygon.height = undefined;
+          entity.polygon.heightReference = undefined;
+          entity.polygon.extrudedHeight = undefined;
+          entity.polygon.extrudedHeightReference = undefined;
         }
       }
     }
@@ -378,6 +439,18 @@ function north() {
     requestRender();
   }
 }
+function tilt() {
+  if (viewer) {
+    viewer.camera.setView({
+      orientation: {
+        heading: viewer.camera.heading,
+        pitch: CesiumMath.toRadians(-42),
+        roll: 0,
+      },
+    });
+    requestRender();
+  }
+}
 
 watch(
   () => props.annotations,
@@ -398,7 +471,7 @@ watch(
 watch(
   () => props.layers,
   (value) => {
-    for (const c of categories)
+    for (const c of mapLayers)
       if (value[c.key]) void updateSource(c.key, value[c.key].features, c.color);
   },
 );
@@ -414,6 +487,31 @@ watch(
 );
 watch(() => props.basemap, setImagery);
 watch(() => props.terrain, setTerrain);
+watch(() => props.buildings3d, (value) => {
+  for (const [group, source] of sources) {
+    if (group !== 'annotations' && group !== 'preview') continue;
+    source.entities.values.forEach((entity) => {
+      const p = entity.properties?.getValue(viewer?.clock.currentTime) || {};
+      if (!entity.polygon) return;
+      const floors = Number(p.floors);
+      if (value && Number.isFinite(floors) && floors > 0) {
+        entity.polygon.height = new ConstantProperty(0);
+        entity.polygon.heightReference = new ConstantProperty(HeightReference.CLAMP_TO_GROUND);
+        entity.polygon.extrudedHeight = new ConstantProperty(floors * 3);
+        entity.polygon.extrudedHeightReference = new ConstantProperty(
+          HeightReference.RELATIVE_TO_GROUND,
+        );
+      } else {
+        entity.polygon.height = undefined;
+        entity.polygon.heightReference = undefined;
+        entity.polygon.extrudedHeight = undefined;
+        entity.polygon.extrudedHeightReference = undefined;
+      }
+    });
+  }
+  requestRender();
+});
+watch(() => props.route, updateRoute, { deep: true });
 watch(
   () => props.exaggeration,
   (v) => {
@@ -491,12 +589,17 @@ onMounted(() => {
     void setTerrain();
     void updateSource('annotations', props.annotations, '#e34b62');
     void updateSource('boundaries', props.boundaries, '#f46c82');
-    for (const c of categories)
+    for (const c of mapLayers)
       if (props.layers[c.key]) void updateSource(c.key, props.layers[c.key].features, c.color);
     home();
     handler = new ScreenSpaceEventHandler(viewer.canvas);
     handler.setInputAction((event: { position: Cartesian2 }) => {
       if (!viewer) return;
+      if (props.routeMode) {
+        const position = pickPosition(event.position);
+        if (position) emit('routePoint', position);
+        return;
+      }
       if (props.drawMode) {
         const position = pickPosition(event.position);
         if (!position) return;
@@ -517,11 +620,13 @@ onMounted(() => {
         void viewer.flyTo(cluster.id, { duration: 0.7 });
         return;
       }
-      const selected = mapped.find((p) => p?.group !== 'boundaries') || mapped[0];
+      const selected =
+        mapped.find((p) => !['boundaries', 'neighborCounties'].includes(p?.group || '')) ||
+        mapped[0];
       if (selected) emit('select', selected.feature, selected.group);
     }, ScreenSpaceEventType.LEFT_CLICK);
     handler.setInputAction((event: { position: Cartesian2 }) => {
-      if (props.drawMode) return;
+      if (props.drawMode || props.routeMode) return;
       const position = pickPosition(event.position);
       if (position) emit('draw', { mode: 'point', coordinates: [position] });
     }, ScreenSpaceEventType.RIGHT_CLICK);
@@ -557,9 +662,10 @@ onBeforeUnmount(() => {
   observer?.disconnect();
   handler?.destroy();
   viewer?.destroy();
+  routeEntity = undefined;
   viewer = undefined;
 });
-defineExpose({ focus, home, zoom, north, undo, finish });
+defineExpose({ focus, home, zoom, north, tilt, undo, finish });
 </script>
 
 <template>

@@ -4,6 +4,7 @@
   "description": "安多县三维地理沙盘 - 卫星影像、标注、任务清单与地物提取",
   "author": "Teddy <qingyiliu0@gmail.com>",
   "scripts": {
+    "routing": "node --env-file-if-exists=.env.local server/index.mjs",
     "prestart": "node scripts/prepare-web-data.mjs",
     "predev": "node scripts/prepare-web-data.mjs",
     "prebuild": "node scripts/prepare-web-data.mjs",

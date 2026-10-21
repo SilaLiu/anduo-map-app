@@ -60,3 +60,7 @@ for (const name of await readdir(path.join(root, 'sandtable-geojson'))) {
   );
 }
 console.log(`Prepared Anduo web data: ${items.length} boundary files`);
+await mkdir(path.join(output, 'reference'), { recursive: true });
+for (const name of await readdir(path.join(root, 'reference'))) {
+  await copyFile(path.join(root, 'reference', name), path.join(output, 'reference', name));
+}
