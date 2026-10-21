@@ -191,6 +191,17 @@ progress::-moz-progress-bar {
   flex-direction: column;
   overflow: hidden;
 }
+.application.map-only {
+  min-height: 0;
+}
+.map-only > .app-header,
+.map-only > .statusbar,
+.map-only > .workspace > .sidebar {
+  display: none;
+}
+.map-only > .workspace {
+  display: flex;
+}
 .app-header {
   height: 76px;
   flex: 0 0 76px;
@@ -584,6 +595,11 @@ progress::-moz-progress-bar {
   min-height: 0;
   background: #333e40;
   overflow: hidden;
+}
+.map-area:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  flex: none;
 }
 .scene {
   position: absolute;

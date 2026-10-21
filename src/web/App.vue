@@ -4,6 +4,8 @@ import { templeRoster } from './domain/templeRoster';
 import { computed, nextTick, onMounted, onBeforeUnmount, reactive, ref, shallowRef } from 'vue';
 import {
   Globe2,
+  Maximize,
+  Minimize,
   Search,
   ListChecks,
   Layers as LayersIcon,
@@ -88,6 +90,21 @@ const notice = ref('');
 const tab = ref('boundaries');
 const search = ref('');
 const sidebar = ref(true);
+const mapOnly = ref(true);
+const mapContainer = ref<HTMLElement>();
+const mapFullscreen = ref(false);
+function syncFullscreen() {
+  mapFullscreen.value = document.fullscreenElement === mapContainer.value;
+}
+async function toggleMapFullscreen() {
+  try {
+    if (mapFullscreen.value) await document.exitFullscreen();
+    else if (mapContainer.value?.requestFullscreen) await mapContainer.value.requestFullscreen();
+    else window.alert('当前浏览器不支持沙盘全屏，请使用新版 Chrome。');
+  } catch {
+    window.alert('无法进入或退出全屏，请检查浏览器权限后重试。');
+  }
+}
 const map = ref<InstanceType<typeof MapScene>>();
 const editor = ref<Annotation | null>(null);
 const editorVersion = ref(0);
@@ -663,6 +680,7 @@ function beforeUnload(event: BeforeUnloadEvent) {
   if (saveStatus.value === '未保存' || saveStatus.value === '保存中') event.preventDefault();
 }
 onMounted(() => {
+  document.addEventListener('fullscreenchange', syncFullscreen);
   void init();
   if (speechSupported.value) window.speechSynthesis.getVoices();
   window.addEventListener('online', networkChanged);
@@ -671,6 +689,7 @@ onMounted(() => {
   window.addEventListener('beforeunload', beforeUnload);
 });
 onBeforeUnmount(() => {
+  document.removeEventListener('fullscreenchange', syncFullscreen);
   routeVersion++;
   routeRequest?.abort();
   stopFeatureSpeech();
@@ -682,7 +701,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="application">
+  <div class="application" :class="{ 'map-only': mapOnly }">
     <header class="app-header">
       <div class="brand">
         <Globe2 :size="26" />
@@ -962,7 +981,7 @@ onBeforeUnmount(() => {
           </div>
         </section>
       </aside>
-      <main class="map-area">
+      <main ref="mapContainer" class="map-area">
         <MapScene
           v-if="!loading && !loadFailed"
           ref="map"
@@ -1001,7 +1020,21 @@ onBeforeUnmount(() => {
           ><button v-if="loadFailed" @click="init"><RefreshCw :size="16" />重新加载</button>
         </div>
         <div class="map-top-left">
+          <button v-if="!mapFullscreen" class="map-button" @click="mapOnly = !mapOnly">
+            {{ mapOnly ? '恢复完整界面' : '只显示沙盘' }}
+          </button>
           <button
+            class="icon-button map-button"
+            :title="mapFullscreen ? '退出沙盘全屏（Esc）' : '沙盘全屏'"
+            :aria-label="mapFullscreen ? '退出沙盘全屏' : '沙盘全屏'"
+            :aria-pressed="mapFullscreen"
+            @click="toggleMapFullscreen"
+          >
+            <Minimize v-if="mapFullscreen" :size="18" />
+            <Maximize v-else :size="18" />
+          </button>
+          <button
+            v-if="!mapFullscreen && !mapOnly"
             class="icon-button map-button"
             :title="sidebar ? '收起面板' : '展开面板'"
             :aria-label="sidebar ? '收起面板' : '展开面板'"
