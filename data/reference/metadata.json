@@ -1,23 +1,42 @@
 {
-  "generatedAt": "2026-10-20T12:22:07.585Z",
+  "generatedAt": "2026-10-21T02:20:06.398Z",
   "cacheFallback": true,
-  "coverage": "历史缓存，周边50公里覆盖不完整",
+  "coverage": "历史安多缓存 + 六个周边县城区域OSM线路；不保证路网完整或可通行",
   "bufferKm": 50,
   "roadCounts": {
-    "highways": 75,
-    "provincialRoads": 50,
+    "highways": 497,
+    "provincialRoads": 280,
     "countyRoads": 0,
     "townshipRoads": 0
   },
   "bounds": [
-    88.16366426715086,
-    30.989000799909206,
-    94.07226657119654,
-    36.68664479928641
+    88.283456,
+    30.167135,
+    94.1217935,
+    34.1039624
   ],
   "sources": [
     "OpenStreetMap / Overpass",
     "DataV Atlas"
   ],
-  "note": "参考图层，不参与安多县行政归属。不同来源边界可能不一致；线路为与缓冲区相交的完整路段，非完整道路数据库。"
+  "note": "范围为实际线路包围盒；bufferKm仅描述原始历史缓存筛选条件。周边县界仍为原有参考数据，线路不按安多县界裁切。",
+  "extension": {
+    "counties": [
+      "色尼区",
+      "聂荣县",
+      "比如县",
+      "班戈县",
+      "双湖县",
+      "当雄县"
+    ],
+    "queryBounds": [
+      88.5,
+      30.25,
+      94,
+      33.5
+    ],
+    "osmTimestamp": "2026-10-21T02:15:35Z",
+    "source": "OpenStreetMap / https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "railwayCount": 817
 }

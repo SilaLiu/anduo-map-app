@@ -32,8 +32,8 @@ import {
 import type { Feature, FeatureCollection, Position } from 'geojson';
 import { geometryBounds, collection } from '../domain/geo';
 import { mapLayers } from '../domain/referenceLayers';
+import { roadLabelText } from '../domain/roadLabels';
 import { navigationRouteStyle } from '../domain/routeStyle';
-import { pointOnFeature } from '@turf/turf';
 import type { Annotation, DrawMode, DrawResult, Layers } from '../types';
 
 const props = defineProps<{
@@ -78,22 +78,36 @@ let terrainGeneration = 0;
 let imageGeneration = 0;
 let routeEntity: Entity | undefined;
 let vehicleEntity: Entity | undefined;
-const vehicleImage = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="white" stroke="#087c42" stroke-width="3"/><path d="M13 26l3-10h16l3 10v8H13z" fill="#168bf0"/><path d="M18 18h12l2 7H16z" fill="#dff4ff"/><circle cx="17" cy="30" r="2" fill="white"/><circle cx="31" cy="30" r="2" fill="white"/></svg>');
-watch(() => props.vehiclePosition, (position) => {
-  if (!viewer) return;
-  if (!position) {
-    if (vehicleEntity) viewer.entities.remove(vehicleEntity);
-    vehicleEntity = undefined;
-  } else {
-    if (!vehicleEntity) vehicleEntity = viewer.entities.add({
-      billboard: { image: vehicleImage, width: 40, height: 40,
-        heightReference: HeightReference.CLAMP_TO_GROUND,
-        disableDepthTestDistance: Number.POSITIVE_INFINITY },
-    });
-    vehicleEntity.position = new ConstantPositionProperty(Cartesian3.fromDegrees(position[0], position[1]));
-  }
-  requestRender();
-});
+const vehicleImage =
+  'data:image/svg+xml,' +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="white" stroke="#087c42" stroke-width="3"/><path d="M13 26l3-10h16l3 10v8H13z" fill="#168bf0"/><path d="M18 18h12l2 7H16z" fill="#dff4ff"/><circle cx="17" cy="30" r="2" fill="white"/><circle cx="31" cy="30" r="2" fill="white"/></svg>',
+  );
+watch(
+  () => props.vehiclePosition,
+  (position) => {
+    if (!viewer) return;
+    if (!position) {
+      if (vehicleEntity) viewer.entities.remove(vehicleEntity);
+      vehicleEntity = undefined;
+    } else {
+      if (!vehicleEntity)
+        vehicleEntity = viewer.entities.add({
+          billboard: {
+            image: vehicleImage,
+            width: 40,
+            height: 40,
+            heightReference: HeightReference.CLAMP_TO_GROUND,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          },
+        });
+      vehicleEntity.position = new ConstantPositionProperty(
+        Cartesian3.fromDegrees(position[0], position[1]),
+      );
+    }
+    requestRender();
+  },
+);
 
 function requestRender() {
   viewer?.scene.requestRender();
@@ -143,15 +157,22 @@ async function updateSource(group: string, features: Feature[], color: string) {
       markerColor: Color.fromCssColorString(color),
     });
     if (!viewer || viewer.isDestroyed() || generations.get(group) !== generation) return;
+    const roadLabelPositions = new Map<string, Cartesian3[]>();
     for (const entity of source.entities.values) {
       const p = entity.properties?.getValue(viewer.clock.currentTime) || {};
       const feature = features[p.__index];
       if (!feature) continue;
-      if (group === 'neighborCounties' && !entity.position) {
-        const center = pointOnFeature(feature).geometry.coordinates;
-        entity.position = new ConstantPositionProperty(
-          Cartesian3.fromDegrees(center[0], center[1]),
-        );
+      const roadText = roadLabelText(group, p);
+      if (entity.polyline && roadText) {
+        const positions = entity.polyline.positions?.getValue(viewer.clock.currentTime) as
+          Cartesian3[] | undefined;
+        const anchor = positions?.[Math.floor(positions.length / 2)];
+        const existing = roadLabelPositions.get(roadText) || [];
+        if (anchor && existing.every((position) => Cartesian3.distance(position, anchor) >= 8000)) {
+          entity.position = new ConstantPositionProperty(anchor);
+          existing.push(anchor);
+          roadLabelPositions.set(roadText, existing);
+        }
       }
       if (group !== 'highlight') featureByEntity.set(entity, { feature, group });
       const tint =
@@ -161,7 +182,8 @@ async function updateSource(group: string, features: Feature[], color: string) {
       if (entity.billboard) {
         entity.billboard = undefined;
         entity.point = new PointGraphics({
-          pixelSize: group === 'highlight' ? 16 : group === 'towns' ? 10 : 7,
+          pixelSize:
+            group === 'highlight' ? 16 : group === 'countySeats' ? 12 : group === 'towns' ? 10 : 7,
           color: tint,
           outlineColor: Color.fromCssColorString('#20292e'),
           outlineWidth: 2,
@@ -169,17 +191,17 @@ async function updateSource(group: string, features: Feature[], color: string) {
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
           distanceDisplayCondition: new DistanceDisplayCondition(
             0,
-            ['towns', 'annotations', 'preview', 'highlight'].includes(group)
+            ['towns', 'countySeats', 'annotations', 'preview', 'highlight'].includes(group)
               ? Number.POSITIVE_INFINITY
               : 180000,
           ),
         });
       }
-      if (entity.position && p.name && group !== 'highlight') {
+      if (entity.position && (roadText || p.name) && group !== 'highlight') {
         entity.label = new LabelGraphics({
-          text: String(p.name),
+          text: roadText || String(p.name),
           font: '13px sans-serif',
-          fillColor: Color.WHITE,
+          fillColor: roadText ? tint : Color.WHITE,
           showBackground: true,
           backgroundColor: Color.BLACK.withAlpha(0.7),
           backgroundPadding: new Cartesian2(5, 3),
@@ -189,11 +211,15 @@ async function updateSource(group: string, features: Feature[], color: string) {
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
           distanceDisplayCondition: new DistanceDisplayCondition(
             0,
-            ['towns', 'neighborCounties'].includes(group) ? 2400000 : 180000,
+            ['towns', 'neighborCounties', 'countySeats'].includes(group) ? 2400000 : 180000,
           ),
           show: props.labels,
         });
       }
+      if (entity.polyline && group === 'countyRoads')
+        entity.polyline.distanceDisplayCondition = new ConstantProperty(
+          new DistanceDisplayCondition(0, 180000),
+        );
       if (entity.polyline && ['annotations', 'preview'].includes(group))
         entity.polyline.material = new ColorMaterialProperty(tint);
       if (entity.polyline && group === 'railways') {
@@ -487,30 +513,33 @@ watch(
 );
 watch(() => props.basemap, setImagery);
 watch(() => props.terrain, setTerrain);
-watch(() => props.buildings3d, (value) => {
-  for (const [group, source] of sources) {
-    if (group !== 'annotations' && group !== 'preview') continue;
-    source.entities.values.forEach((entity) => {
-      const p = entity.properties?.getValue(viewer?.clock.currentTime) || {};
-      if (!entity.polygon) return;
-      const floors = Number(p.floors);
-      if (value && Number.isFinite(floors) && floors > 0) {
-        entity.polygon.height = new ConstantProperty(0);
-        entity.polygon.heightReference = new ConstantProperty(HeightReference.CLAMP_TO_GROUND);
-        entity.polygon.extrudedHeight = new ConstantProperty(floors * 3);
-        entity.polygon.extrudedHeightReference = new ConstantProperty(
-          HeightReference.RELATIVE_TO_GROUND,
-        );
-      } else {
-        entity.polygon.height = undefined;
-        entity.polygon.heightReference = undefined;
-        entity.polygon.extrudedHeight = undefined;
-        entity.polygon.extrudedHeightReference = undefined;
-      }
-    });
-  }
-  requestRender();
-});
+watch(
+  () => props.buildings3d,
+  (value) => {
+    for (const [group, source] of sources) {
+      if (group !== 'annotations' && group !== 'preview') continue;
+      source.entities.values.forEach((entity) => {
+        const p = entity.properties?.getValue(viewer?.clock.currentTime) || {};
+        if (!entity.polygon) return;
+        const floors = Number(p.floors);
+        if (value && Number.isFinite(floors) && floors > 0) {
+          entity.polygon.height = new ConstantProperty(0);
+          entity.polygon.heightReference = new ConstantProperty(HeightReference.CLAMP_TO_GROUND);
+          entity.polygon.extrudedHeight = new ConstantProperty(floors * 3);
+          entity.polygon.extrudedHeightReference = new ConstantProperty(
+            HeightReference.RELATIVE_TO_GROUND,
+          );
+        } else {
+          entity.polygon.height = undefined;
+          entity.polygon.heightReference = undefined;
+          entity.polygon.extrudedHeight = undefined;
+          entity.polygon.extrudedHeightReference = undefined;
+        }
+      });
+    }
+    requestRender();
+  },
+);
 watch(() => props.route, updateRoute, { deep: true });
 watch(
   () => props.exaggeration,

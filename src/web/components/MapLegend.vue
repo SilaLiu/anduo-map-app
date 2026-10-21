@@ -10,6 +10,7 @@ const expanded = ref(true);
 const entries = [
   ...roadClasses.map((road) => ({ key: road.key, name: road.name, symbol: 'line' })),
   { key: 'railways', name: '铁路', symbol: 'rail' },
+  { key: 'countySeats', name: '县城参考定位', symbol: 'point' },
   { key: 'towns', name: '乡镇驻地', symbol: 'point' },
   { key: 'villages', name: '行政村', symbol: 'point' },
   { key: 'rivers', name: '河流', symbol: 'line' },
@@ -61,7 +62,7 @@ const entries = [
           <span v-if="visibility[entry.key] === false" class="sr-only">（图层已关闭）</span>
         </li>
       </ul>
-      <p>颜色与地图一致 · 灰显表示图层关闭</p>
+      <p>颜色与地图一致 · 灰显表示图层关闭 · 县道放大后显示</p>
     </div>
   </section>
 </template>

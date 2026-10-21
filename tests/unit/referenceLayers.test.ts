@@ -4,11 +4,32 @@ import type { FeatureCollection } from 'geojson';
 import { referenceLayers } from '../../src/web/domain/referenceLayers';
 import { isAnduoBoundary } from '../../src/web/domain/anduoScope';
 import { classifyRoad } from '../../src/web/domain/roadClasses.mjs';
+import { point, pointToLineDistance } from '@turf/turf';
+import type { Feature, LineString } from 'geojson';
 
 const read = (name: string): FeatureCollection =>
   JSON.parse(readFileSync(`data/reference/${name}.geojson`, 'utf8'));
 
 describe('regional reference layers', () => {
+  it('includes real national road geometry near all six target county seats', () => {
+    const names = ['色尼区', '聂荣县', '比如县', '班戈县', '双湖县', '当雄县'];
+    const counties = read('neighborCounties').features.filter((f) =>
+      names.includes(f.properties?.name),
+    );
+    expect(counties).toHaveLength(6);
+    const roads = read('highways').features as Feature<LineString>[];
+    for (const county of counties) {
+      const nearest = Math.min(
+        ...roads.map((road) => pointToLineDistance(point(county.properties!.center), road)),
+      );
+      expect(nearest, county.properties!.name).toBeLessThan(2);
+    }
+    for (const group of ['highways', 'provincialRoads', 'railways']) {
+      const ids = read(group).features.map((f) => f.properties?.osm_id);
+      expect(new Set(ids).size).toBe(ids.length);
+    }
+  });
+
   it('ships nonempty reference layers independently of workspace boundaries', () => {
     for (const layer of referenceLayers) {
       const source = read(layer.key);
