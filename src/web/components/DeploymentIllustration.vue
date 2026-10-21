@@ -4,9 +4,9 @@ import UnitSymbol from './UnitSymbol.vue';
 
 const canvas = ref<HTMLElement>();
 const labels = ref([
-  { name: '演示连 A', level: '连', x: 18, y: 25, anchorX: 30, anchorY: 72 },
-  { name: '演示排 B', level: '排', x: 50, y: 25, anchorX: 55, anchorY: 65 },
-  { name: '演示班 C', level: '班', x: 80, y: 25, anchorX: 85, anchorY: 76 },
+  { name: '演示连 A', count: 90, level: '连', x: 18, y: 25, anchorX: 30, anchorY: 72 },
+  { name: '演示排 B', count: 30, level: '排', x: 50, y: 25, anchorX: 55, anchorY: 65 },
+  { name: '演示班 C', count: 10, level: '班', x: 80, y: 25, anchorX: 85, anchorY: 76 },
 ]);
 const dragging = ref<number | null>(null);
 function start(event: PointerEvent, index: number) {
@@ -24,17 +24,14 @@ function move(event: PointerEvent) {
 
 <template>
   <section class="illustration" @pointerdown.stop @dblclick.stop>
-    <strong>虚构标记联动示意</strong>
-    <p>拖动标签查看指示线效果 · 无真实坐标 · 不读取或保存部署资料</p>
+    <strong>虚构折线标签演示</strong>
+    <p>固定虚构人数，非编制标准 · 无真实坐标 · 不与资料表联动，不读取或保存资料</p>
     <div ref="canvas" class="illustration-canvas">
       <svg class="connectors" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-        <line
+        <polyline
           v-for="label in labels"
           :key="label.name"
-          :x1="label.x"
-          :y1="label.y"
-          :x2="label.anchorX"
-          :y2="label.anchorY"
+          :points="`${label.anchorX},${label.anchorY} ${label.anchorX},${label.y} ${label.x},${label.y}`"
         />
       </svg>
       <template v-for="(label, index) in labels" :key="label.name">
@@ -57,7 +54,9 @@ function move(event: PointerEvent) {
           @keydown.up.prevent="label.y = Math.max(18, label.y - 2)"
           @keydown.down.prevent="label.y = Math.min(82, label.y + 2)"
         >
-          <UnitSymbol :level="label.level" /><span>{{ label.name }}</span>
+          <UnitSymbol :level="label.level" /><span
+            >{{ label.name }}<br />虚构人数：{{ label.count }}</span
+          >
         </button>
       </template>
       <small>示意画布 · 非地理位置</small>
@@ -90,7 +89,8 @@ p {
   height: 100%;
   pointer-events: none;
 }
-line {
+polyline {
+  fill: none;
   stroke: #127b64;
   stroke-width: 1.5px;
   vector-effect: non-scaling-stroke;

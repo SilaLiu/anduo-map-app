@@ -1,4 +1,5 @@
 import type { Feature, FeatureCollection, Geometry, Position } from 'geojson';
+import type { DeploymentByTown } from './domain/deployment';
 
 export type DrawMode = 'point' | 'line' | 'polygon' | 'extract';
 export type Category =
@@ -30,6 +31,7 @@ export interface Workspace {
   version: 2;
   annotations: Annotation[];
   boundaries: Feature[];
+  deployments?: DeploymentByTown;
 }
 export interface Requirements {
   county?: { county_seat?: { town?: string } };

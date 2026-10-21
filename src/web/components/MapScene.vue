@@ -45,6 +45,8 @@ import { roadLabelText } from '../domain/roadLabels';
 import { navigationRouteStyle } from '../domain/routeStyle';
 import { townColors, isAnduoCounty } from '../domain/townColors';
 import { labelHierarchy, overlapsLabel, type LabelBox } from '../domain/labelHierarchy';
+import type { DeploymentByTown } from '../domain/deployment';
+import { deploymentMarker } from '../domain/deploymentMarker';
 import type { Annotation, DrawMode, DrawResult, Layers } from '../types';
 
 const props = defineProps<{
@@ -65,6 +67,7 @@ const props = defineProps<{
   vehiclePosition: Position | null;
   preview: Feature[];
   highlight?: Feature;
+  deployments: DeploymentByTown;
 }>();
 const emit = defineEmits<{
   ready: [];
@@ -103,6 +106,13 @@ watch(
   },
   { immediate: true },
 );
+watch(
+  () => props.deployments,
+  () => {
+    if (props.layers.towns?.features) void updateSource('towns', props.layers.towns.features, '#b7c4d8');
+  },
+  { deep: true },
+);
 function updatePopupPosition() {
   if (!viewer || !popupAnchor) return;
   const scene = viewer.scene;
@@ -131,6 +141,7 @@ function updatePopupPosition() {
       : null,
   );
 }
+
 function layoutLabels() {
   if (!viewer || performance.now() - lastLabelLayout < 100) return;
   lastLabelLayout = performance.now();
@@ -150,6 +161,10 @@ function layoutLabels() {
       const eligible = source.show && scale <= rule.range;
       if (entity.point && entity.point.show?.getValue(time) !== eligible)
         entity.point.show = new ConstantProperty(eligible);
+      if (group === 'towns' && entity.id.includes(':deployment-') && entity.billboard) {
+        entity.billboard.show = new ConstantProperty(eligible && props.labels);
+        continue;
+      }
       if (!entity.label) continue;
       // Keep township captions: topographic tiles do not label every township.
       // Suppress only duplicate village captions on this basemap.
@@ -168,14 +183,20 @@ function layoutLabels() {
       if (show && screen) {
         const text = String(entity.label.text?.getValue(time) || '');
         const width = [...text].length * rule.size + 18;
+        const offset = entity.label.pixelOffset?.getValue(time) || Cartesian2.ZERO;
         const box = {
-          x: screen.x - width / 2,
-          y: screen.y - rule.size - 25,
+          x: screen.x + offset.x - width / 2,
+          y: screen.y + offset.y - rule.size - 10,
           width,
           height: rule.size + 14,
         };
         show = !occupied.some((other) => overlapsLabel(box, other));
         if (show) occupied.push(box);
+      }
+      if (group === 'towns') {
+        if (entity.billboard) entity.billboard.show = new ConstantProperty(eligible);
+        const leader = source.entities.getById(`${entity.id}:leader`);
+        if (leader?.billboard) leader.billboard.show = new ConstantProperty(show);
       }
       if (entity.label.show?.getValue(time) !== show)
         entity.label.show = new ConstantProperty(show);
@@ -262,7 +283,8 @@ async function updateSource(group: string, features: Feature[], color: string) {
     });
     if (!viewer || viewer.isDestroyed() || generations.get(group) !== generation) return;
     const roadLabelPositions = new Map<string, Cartesian3[]>();
-    for (const entity of source.entities.values) {
+    // Adding leader entities mutates Cesium's collection. Process only source features.
+    for (const entity of [...source.entities.values]) {
       const p = entity.properties?.getValue(viewer.clock.currentTime) || {};
       const feature = features[p.__index];
       if (!feature) continue;
@@ -324,7 +346,7 @@ async function updateSource(group: string, features: Feature[], color: string) {
           heightReference: HeightReference.CLAMP_TO_GROUND,
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
         });
-      } else if (entity.billboard) {
+      } else if (entity.billboard || (group === 'towns' && entity.position)) {
         entity.billboard = undefined;
         entity.point = new PointGraphics({
           pixelSize:
@@ -344,15 +366,43 @@ async function updateSource(group: string, features: Feature[], color: string) {
           ),
         });
       }
+      if (group === 'towns' && entity.position) {
+        // Clamped PointGraphics and leader billboards share Cesium's billboard pool.
+        // Use BillboardGraphics for both so recycled primitives always reset dimensions.
+        entity.point = undefined;
+        entity.billboard = new BillboardGraphics({
+          image:
+            'data:image/svg+xml,' +
+            encodeURIComponent(
+              '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"><circle cx="7" cy="7" r="5" fill="#ffd740" stroke="#20292e" stroke-width="2"/></svg>',
+            ),
+          width: 14,
+          height: 14,
+          scale: 1,
+          horizontalOrigin: HorizontalOrigin.CENTER,
+          verticalOrigin: VerticalOrigin.CENTER,
+          pixelOffset: Cartesian2.ZERO,
+          heightReference: HeightReference.CLAMP_TO_GROUND,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          distanceDisplayCondition: new DistanceDisplayCondition(0, labelHierarchy('towns').range),
+        });
+      }
       if (entity.position && (roadText || p.name) && !['highlight', 'boundaries'].includes(group)) {
+        const townName = String(p.name);
+        const deploymentRows = group === 'towns' ? props.deployments[townName] || [] : [];
+        const isDeploymentLabel = group === 'towns' && deploymentRows.length > 0;
+        const labelText = roadText || townName;
         entity.label = new LabelGraphics({
-          text: roadText || String(p.name),
+          text: labelText,
           font: `${group === 'countySeats' ? 'bold ' : ''}${labelHierarchy(group).size}px sans-serif`,
-          fillColor: roadText ? tint : Color.WHITE,
+          fillColor: !roadText ? Color.WHITE : tint,
           showBackground: true,
           backgroundColor: Color.BLACK.withAlpha(0.7),
           backgroundPadding: new Cartesian2(5, 3),
-          pixelOffset: new Cartesian2(0, useFlag ? -46 : -15),
+          pixelOffset: new Cartesian2(
+            group === 'towns' ? 48 : 0,
+            isDeploymentLabel ? 26 : group === 'towns' ? -42 : useFlag ? -46 : -15,
+          ),
           verticalOrigin: VerticalOrigin.BOTTOM,
           heightReference: HeightReference.CLAMP_TO_GROUND,
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
@@ -362,6 +412,25 @@ async function updateSource(group: string, features: Feature[], color: string) {
           ),
           show: props.labels,
         });
+        if (isDeploymentLabel && entity.position) {
+          const marker = deploymentMarker(deploymentRows);
+          source.entities.add({
+            id: `${entity.id}:deployment-group`,
+            position: entity.position,
+            billboard: new BillboardGraphics({
+              image: marker.image,
+              width: marker.width,
+              height: marker.height,
+              horizontalOrigin: HorizontalOrigin.RIGHT,
+              verticalOrigin: VerticalOrigin.BOTTOM,
+              pixelOffset: new Cartesian2(2, 2),
+              heightReference: HeightReference.CLAMP_TO_GROUND,
+              disableDepthTestDistance: Number.POSITIVE_INFINITY,
+              show: props.labels,
+              distanceDisplayCondition: new DistanceDisplayCondition(0, labelHierarchy('towns').range),
+            }),
+          });
+        }
       }
       if (entity.polyline && group === 'countyRoads')
         entity.polyline.distanceDisplayCondition = new ConstantProperty(

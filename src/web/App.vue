@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import DeploymentDemo from './components/DeploymentDemo.vue';
+import { defaultDeployments, type DeploymentByTown } from './domain/deployment';
 import { templeRoster } from './domain/templeRoster';
 import { computed, nextTick, onMounted, onBeforeUnmount, reactive, ref, shallowRef } from 'vue';
 import {
@@ -112,6 +113,16 @@ const selection = ref<{ feature: Feature; group: string } | null>(null);
 const popupPosition = ref<{ x: number; y: number } | null>(null);
 const basemap = ref('satellite');
 const activeTheme = ref('');
+const deployments = ref<DeploymentByTown>(defaultDeployments());
+const visibleDeployments = computed<DeploymentByTown>(() =>
+  activeTheme.value === 'theme-militia' ? deployments.value : {},
+);
+const deploymentTowns = computed(() => {
+  const names = (layers.value.towns?.features || [])
+    .map((feature) => String(feature.properties?.name || '').trim())
+    .filter(Boolean);
+  return [...new Set([...names, ...Object.keys(deployments.value)])];
+});
 function selectTheme(key: string) {
   activeTheme.value = key;
   basemap.value = !key ? 'satellite' : key === 'theme-militia' ? 'topographic' : 'street';
@@ -255,7 +266,7 @@ function toggleSpeech() {
   else stopFeatureSpeech();
 }
 function snapshot(): Workspace {
-  return { version: 2, annotations: annotations.value, boundaries: boundaries.value };
+  return { version: 2, annotations: annotations.value, boundaries: boundaries.value, deployments: deployments.value };
 }
 async function persist(): Promise<boolean> {
   if (loadFailed.value) {
@@ -320,6 +331,7 @@ async function init() {
       boundaries.value = mergeBoundaries([], defaults);
     }
     await loadReferenceData();
+    if (saved?.deployments) deployments.value = saved.deployments;
     saveStatus.value = '已保存到浏览器';
     if (!saved || saved.boundariesRepaired || scopeChanged) await persist();
   } catch (e) {
@@ -1002,6 +1014,7 @@ onBeforeUnmount(() => {
           :temple-theme="activeTheme === 'theme-temples'"
           :preview="preview"
           :highlight="selection?.feature"
+          :deployments="visibleDeployments"
           @popup-position="popupPosition = $event"
           @ready="ready = true"
           @error="report"
@@ -1342,7 +1355,15 @@ onBeforeUnmount(() => {
             </button>
           </div>
         </div>
-        <DeploymentDemo v-if="activeTheme === 'theme-militia' && !drawMode" />
+        <DeploymentDemo
+          v-if="activeTheme === 'theme-militia' && !drawMode"
+          v-model:deployments="deployments"
+          :town-names="deploymentTowns"
+          :save-status="saveStatus"
+          @dirty="saveStatus = '未保存'"
+          @save="void persist()"
+          @locate="(town) => { const feature = layers.towns?.features.find((item) => item.properties?.name === town); if (feature) map?.focus(feature); }"
+        />
         <MapLegend
           v-show="!drawMode && !['theme-temples', 'theme-militia'].includes(activeTheme)"
           :visibility="sceneVisibility"

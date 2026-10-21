@@ -30,6 +30,7 @@ export async function loadWorkspace(): Promise<
       version: 2,
       annotations: parseFeatures(saved.annotations).map((f) => toAnnotation(f, true)),
       boundaries: parseFeatures(repaired.features),
+      deployments: saved.deployments,
       boundariesRepaired: repaired.repaired,
     };
   }
