@@ -46,19 +46,45 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          90.8437354,
-          31.9761737
+          91.4337756930556,
+          32.302061146849525
         ]
       },
       "properties": {
-        "name": "强玛寺",
+        "name": "唐卡寺",
         "category": "temple",
         "light": false,
         "sign": true,
         "building": true,
-        "note": "按教派区分，不加灯标牌+寺庙房子（Nominatim 估算）",
-        "source": "Nominatim",
-        "needs_review": true
+        "note": "高德POI：安多县唐卡寺，地址措玛乡，类型寺庙道观；已核对县域范围，GCJ-02近似转换为WGS84，未经实地核验。",
+        "source": "高德地图 POI",
+        "amap_id": "B0G1OCDHAG",
+        "source_name": "安多县唐卡寺",
+        "source_coordinate_system": "GCJ-02",
+        "source_coordinates": [
+          91.435369,
+          32.299724
+        ],
+        "coordinate_system": "WGS84（近似转换）",
+        "location_status": "POI匹配，未经实地核验",
+        "needs_review": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.7737396,
+          31.9360158
+        ]
+      },
+      "properties": {
+        "name": "卓古寺",
+        "category": "temple",
+        "source": "OpenStreetMap",
+        "osm_id": 12973793757,
+        "note": "历史OSM来源坐标，未经实地核验。"
       }
     },
     {
@@ -71,14 +97,11 @@
         ]
       },
       "properties": {
-        "name": "雪琼寺",
+        "name": "穷宗寺",
         "category": "temple",
-        "light": false,
-        "sign": true,
-        "building": true,
-        "note": "按教派区分，不加灯标牌+寺庙房子",
         "source": "OpenStreetMap",
-        "osm_id": 13512230771
+        "osm_id": 13512230771,
+        "note": "历史OSM来源坐标，未经实地核验。"
       }
     },
     {
@@ -86,19 +109,64 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          91.4335793,
-          32.3018987
+          91.29424970419545,
+          32.180982477962296
         ]
       },
       "properties": {
-        "name": "唐卡寺",
+        "name": "多玛寺",
         "category": "temple",
-        "light": false,
-        "sign": true,
-        "building": true,
-        "note": "按教派区分，不加灯标牌+寺庙房子（Nominatim 估算）",
-        "source": "Nominatim",
-        "needs_review": true
+        "source": "高德POI村级参考定位",
+        "osm_id": null,
+        "amap_poi_id": "B0I04HUIOV",
+        "reference_name": "加秀玛村村民委员会",
+        "location_precision": "village_reference",
+        "needs_review": true,
+        "note": "按所属村村委会位置参考定位，非寺庙精确位置；所属村关系由用户提供。高德GCJ-02已转换为近似WGS84。"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.8502330191824,
+          31.688657309529287
+        ]
+      },
+      "properties": {
+        "name": "雪穷寺",
+        "category": "temple",
+        "source": "高德POI候选村参考定位",
+        "amap_poi_id": "B0I04HV588",
+        "reference_name": "拉姆措村村民委员会",
+        "reported_village": "扎仁镇拉缨措村",
+        "location_precision": "village_reference",
+        "village_match_pending": true,
+        "needs_review": true,
+        "note": "模糊参考定位：采用拉姆措村村民委员会坐标；与用户提供的扎仁镇拉缨措村是否同村尚未核实，非寺庙精确位置。高德GCJ-02已转近似WGS84。"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.6343468017499,
+          32.05887420017612
+        ]
+      },
+      "properties": {
+        "name": "仲巴寺",
+        "category": "temple",
+        "source": "高德POI候选村参考定位",
+        "amap_poi_id": "B0I04HUIOT",
+        "reference_name": "活龙下日村村民委员会",
+        "reported_village": "措玛乡活龙夏日玛村",
+        "location_precision": "village_reference",
+        "village_match_pending": true,
+        "needs_review": true,
+        "note": "模糊参考定位：采用活龙下日村村民委员会坐标；与用户提供的措玛乡活龙夏日玛村是否同村尚未核实，非寺庙精确位置。高德GCJ-02已转近似WGS84。"
       }
     }
   ],

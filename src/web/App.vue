@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { templeRoster } from './domain/templeRoster';
 import { computed, nextTick, onMounted, onBeforeUnmount, reactive, ref, shallowRef } from 'vue';
 import {
   Globe2,
@@ -62,6 +63,7 @@ import { buildTasks, categories, statusLabels, type MissingItem } from './domain
 import { anduoBoundaries, isAnduoFeature } from './domain/anduoScope';
 import { featureDetails, featureSpeechText } from './domain/featureDetails';
 import { mapLayers, referenceLayers } from './domain/referenceLayers';
+import { thematicBasemaps, thematicVisibility } from './domain/thematicBasemaps';
 import { loadAnduoBoundaryData } from './services/anduoData';
 import { isSpeechSynthesisSupported, speakText, stopSpeaking } from './services/speech';
 import {
@@ -89,12 +91,13 @@ const map = ref<InstanceType<typeof MapScene>>();
 const editor = ref<Annotation | null>(null);
 const editorVersion = ref(0);
 const selection = ref<{ feature: Feature; group: string } | null>(null);
+const popupPosition = ref<{ x: number; y: number } | null>(null);
 const basemap = ref('satellite');
+const activeTheme = ref('');
 const mode = ref<'2D' | '3D'>('3D');
 const terrainAvailable = !!(
   import.meta.env.VITE_TERRAIN_URL || import.meta.env.VITE_CESIUM_ION_TOKEN
 );
-const tiandituAvailable = !!import.meta.env.VITE_TIANDITU_KEY;
 const terrain = ref(terrainAvailable),
   terrainStatus = ref('椭球地表');
 const exaggeration = ref(1),
@@ -129,6 +132,7 @@ const visibility = reactive<Record<string, boolean>>({
   towns: true,
   villages: true,
   roads: false,
+  militiaDeployment: false,
   highways: true,
   provincialRoads: true,
   countyRoads: true,
@@ -141,6 +145,21 @@ const visibility = reactive<Record<string, boolean>>({
   temples: true,
 });
 const online = ref(navigator.onLine);
+const selectedTheme = computed(() =>
+  thematicBasemaps.find((item) => item.key === activeTheme.value),
+);
+const sceneVisibility = computed(() => thematicVisibility(activeTheme.value, visibility));
+const templeEntries = computed(() =>
+  templeRoster.map((entry) => ({
+    ...entry,
+    feature: layers.value.temples?.features.find(
+      (feature) => feature.properties?.name === entry.name,
+    ),
+  })),
+);
+const businessLayers = mapLayers.filter(
+  (layer) => !thematicBasemaps.some((theme) => theme.layer === layer.key),
+);
 const sections = computed(() =>
   buildTasks(requirements.value, layers.value, annotations.value, missing.value),
 );
@@ -365,8 +384,8 @@ function focusTask(task: Task) {
   }
 }
 function pickFeature(feature: Feature, group: string) {
+  if (selection.value?.feature === feature && selection.value.group === group) return;
   selection.value = { feature, group };
-  map.value?.focus(feature);
   if (speechEnabled.value) speakSelection();
   else stopFeatureSpeech();
 }
@@ -752,7 +771,11 @@ onBeforeUnmount(() => {
           </div>
           <div class="panel-scroll">
             <div v-for="a in filteredAnnotations" :key="a.id" class="feature-row">
-              <button class="feature-main" @click="pickFeature(a, 'annotations')">
+              <button
+                class="feature-main"
+                @click="pickFeature(a, 'annotations')"
+                @dblclick="map?.focus(a)"
+              >
                 <span class="feature-dot" :style="{ background: a.properties.color }"></span
                 ><span
                   ><b>{{ a.properties.name }}</b
@@ -799,7 +822,11 @@ onBeforeUnmount(() => {
           </div>
           <div class="panel-scroll">
             <div v-for="b in filteredBoundaries" :key="boundaryKey(b)" class="feature-row">
-              <button class="feature-main" @click="pickFeature(b, 'boundaries')">
+              <button
+                class="feature-main"
+                @click="pickFeature(b, 'boundaries')"
+                @dblclick="map?.focus(b)"
+              >
                 <Globe2 :size="17" /><span
                   ><b>{{ b.properties?.name }}</b
                   ><small
@@ -839,8 +866,15 @@ onBeforeUnmount(() => {
             <select v-model="basemap" aria-label="底图">
               <option value="satellite">卫星影像 · Esri</option>
               <option value="street">街道地图 · OpenStreetMap</option>
-              <option v-if="tiandituAvailable" value="tianditu">天地图</option>
             </select>
+            <p v-if="selectedTheme" class="setting-value">
+              当前底图叠加安多县专题；点击地图上方“综合”恢复业务图层设置。
+              {{
+                layers[selectedTheme.layer]?.features.length
+                  ? `已加载 ${layers[selectedTheme.layer].features.length} 条，覆盖可能不完整。`
+                  : '暂无数据'
+              }}
+            </p>
             <h3>场景</h3>
             <label class="toggle-row"
               ><span>真实地形</span
@@ -874,13 +908,16 @@ onBeforeUnmount(() => {
               ><span><i class="legend-swatch" style="background: #e34b62"></i>我的标注</span
               ><input v-model="visibility.annotations" type="checkbox"
             /></label>
-            <label v-for="c in mapLayers" :key="c.key" class="toggle-row"
+            <label v-for="c in businessLayers" :key="c.key" class="toggle-row"
               ><span
                 ><i class="legend-swatch" :style="{ background: c.color }"></i>{{ c.name
                 }}<small>{{ layers[c.key]?.features.length || '暂无数据' }}</small></span
               ><input v-model="visibility[c.key]" type="checkbox"
             /></label>
             <h3>工作区</h3>
+            <p class="muted">
+              在底图列表选择安多县专题地图。寺庙和道路复用现有县域数据，覆盖可能不完整；部分寺庙位置为估算，待核实。民兵部署图暂无数据，不会生成点位。
+            </p>
             <p class="muted">
               交通参考数据来自历史 OSM
               缓存，周边50公里覆盖尚不完整；缺失处不补线。国道黄色、省道绿色、县道蓝色、乡道紫色，铁路黑白相间。道路按G/S/X/Y现行编号分类，暂无数据不代表当地没有该类道路。
@@ -907,7 +944,7 @@ onBeforeUnmount(() => {
           :annotations="annotations"
           :boundaries="boundaries"
           :layers="layers"
-          :visibility="visibility"
+          :visibility="sceneVisibility"
           :basemap="basemap"
           :mode="mode"
           :draw-mode="drawMode"
@@ -918,8 +955,10 @@ onBeforeUnmount(() => {
           :route="routeGeometry"
           :vehicle-position="vehiclePosition"
           :labels="labels"
+          :temple-theme="activeTheme === 'theme-temples'"
           :preview="preview"
           :highlight="selection?.feature"
+          @popup-position="popupPosition = $event"
           @ready="ready = true"
           @error="report"
           @select="pickFeature"
@@ -959,7 +998,91 @@ onBeforeUnmount(() => {
               2D
             </button>
           </div>
+          <div
+            class="segmented thematic-tabs"
+            role="group"
+            aria-label="安多县专题切换"
+            @pointerdown.stop
+            @dblclick.stop
+          >
+            <button
+              :class="{ active: !activeTheme }"
+              :aria-pressed="!activeTheme"
+              @click="activeTheme = ''"
+            >
+              综合
+            </button>
+            <button
+              v-for="theme in thematicBasemaps"
+              :key="theme.key"
+              :class="{ active: activeTheme === theme.key }"
+              :aria-pressed="activeTheme === theme.key"
+              :title="theme.name"
+              @click="activeTheme = activeTheme === theme.key ? '' : theme.key"
+            >
+              {{ theme.name.replace('图（安多县）', '') }}
+            </button>
+          </div>
         </div>
+        <section
+          v-if="activeTheme === 'theme-temples'"
+          class="temple-roster"
+          aria-label="安多县八寺分布"
+        >
+          <strong>安多县寺庙 · 8 座</strong>
+          <p>
+            资料由用户提供，未经独立核验；距离不是导航计算值。无坐标且所属村未匹配的寺庙仍待定位。
+          </p>
+          <div class="temple-table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>序号</th>
+                  <th>寺庙名称</th>
+                  <th>位置</th>
+                  <th>距县城距离</th>
+                  <th>教派</th>
+                  <th>核定人员</th>
+                  <th>备注</th>
+                  <th>定位状态</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(entry, index) in templeEntries"
+                  :key="entry.name"
+                  @click="entry.feature && pickFeature(entry.feature, 'temples')"
+                  @dblclick="entry.feature && map?.focus(entry.feature)"
+                >
+                  <td>{{ index + 1 }}</td>
+                  <td>
+                    <button
+                      :disabled="!entry.feature"
+                      @click.stop="entry.feature && pickFeature(entry.feature, 'temples')"
+                      @dblclick.stop="entry.feature && map?.focus(entry.feature)"
+                    >
+                      {{ entry.name }}
+                    </button>
+                  </td>
+                  <td v-for="(value, column) in entry.details" :key="column">{{ value }}</td>
+                  <td>
+                    {{
+                      !entry.feature
+                        ? '待定位'
+                        : entry.feature.properties?.village_match_pending
+                          ? `候选村参考点：${entry.feature.properties.reference_name}（村名待核实，非寺庙精确位置）`
+                          : entry.feature.properties?.location_precision === 'village_reference'
+                            ? '村级参考点，非寺庙精确位置'
+                            : entry.feature.properties?.needs_review
+                              ? '估算位置，待核实'
+                              : '来源坐标，未实地核验'
+                    }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
         <div class="map-tools">
           <div class="tool-group">
             <button
@@ -1092,7 +1215,16 @@ onBeforeUnmount(() => {
           <button @click="clearRoute">清除路线</button>
           <DriveSimulation :route="routeGeometry" @position="vehiclePosition = $event" />
         </div>
-        <div v-show="!drawMode" class="map-info-stack">
+        <div
+          v-show="!drawMode && popupPosition && selection"
+          class="map-point-popup"
+          :class="{ 'popup-below': (popupPosition?.y || 0) < 330 }"
+          :style="{ '--anchor-x': `${popupPosition?.x || 0}px`, top: `${popupPosition?.y || 0}px` }"
+          @pointerdown.stop
+          @dblclick.stop
+          role="dialog"
+          aria-label="地点详情"
+        >
           <div v-if="selection" class="selection-panel">
             <header>
               <h2>{{ selection.feature.properties?.name || '未命名要素' }}</h2>
@@ -1164,11 +1296,19 @@ onBeforeUnmount(() => {
               <Plus :size="15" />存为我的标注
             </button>
           </div>
-          <MapLegend :visibility="visibility" :layers="layers" />
         </div>
+        <MapLegend
+          v-show="!drawMode && activeTheme !== 'theme-temples'"
+          :visibility="sceneVisibility"
+          :layers="layers"
+        />
         <div class="map-caption">
           <span class="live-dot"></span>{{ terrainStatus
           }}<span class="caption-divider"></span>WGS84
+          <span v-if="selectedTheme">
+            · {{ selectedTheme.name
+            }}{{ layers[selectedTheme.layer]?.features.length ? '' : ' · 暂无数据' }}</span
+          >
         </div>
       </main>
     </div>

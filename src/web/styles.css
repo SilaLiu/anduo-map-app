@@ -99,10 +99,22 @@ button.primary {
   box-shadow: 0 3px 14px #17352b24;
   font-size: 12px;
 }
-.route-card strong { color: var(--accent); font-size: 13px; }
-.route-card span { color: var(--muted); line-height: 1.4; }
-.route-card b { font-size: 14px; }
-.route-card button { justify-self: start; padding: 3px 8px; min-height: 26px; }
+.route-card strong {
+  color: var(--accent);
+  font-size: 13px;
+}
+.route-card span {
+  color: var(--muted);
+  line-height: 1.4;
+}
+.route-card b {
+  font-size: 14px;
+}
+.route-card button {
+  justify-self: start;
+  padding: 3px 8px;
+  min-height: 26px;
+}
 .danger {
   color: var(--danger);
 }
@@ -588,6 +600,8 @@ progress::-moz-progress-bar {
   overflow-wrap: anywhere;
 }
 .map-top-left {
+  flex-wrap: wrap;
+  max-width: calc(100% - 88px);
   position: absolute;
   left: 16px;
   top: 16px;
@@ -620,6 +634,14 @@ progress::-moz-progress-bar {
   background: #e4f1ec;
   color: #117b65;
 }
+.thematic-tabs {
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+.thematic-tabs button {
+  width: auto;
+  white-space: nowrap;
+}
 .map-tools {
   position: absolute;
   top: 16px;
@@ -627,6 +649,59 @@ progress::-moz-progress-bar {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+.temple-roster {
+  position: absolute;
+  bottom: 0;
+  right: 16px;
+  width: 700px;
+  z-index: 5;
+  max-width: calc(100% - 90px);
+  max-height: 30%;
+  overflow: auto;
+  padding: 8px;
+  border-radius: 6px;
+  background: #fffffff2;
+}
+.temple-roster > strong {
+  font-size: 13px;
+}
+.temple-roster p {
+  margin: 4px 0;
+  font-size: 10px;
+  color: #687b76;
+}
+.temple-table-scroll {
+  overflow: auto;
+}
+.temple-roster table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.temple-roster th,
+.temple-roster td {
+  padding: 4px 6px;
+  border-bottom: 1px solid #dce5e1;
+  text-align: left;
+}
+.temple-roster th {
+  background: #eef4f1;
+}
+.temple-roster tbody tr:hover {
+  background: #e8f4ef;
+}
+.temple-roster button {
+  font-size: inherit;
+  padding: 4px 6px;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin-top: 0;
+}
+.temple-roster small {
+  color: #687b76;
 }
 .tool-group {
   display: flex;
@@ -722,6 +797,40 @@ progress::-moz-progress-bar {
   align-items: flex-start;
   gap: 8px;
   margin-bottom: 4px;
+}
+.map-point-popup {
+  left: var(--anchor-x);
+  position: absolute;
+  z-index: 10;
+  width: 300px;
+  max-width: calc(100% - 32px);
+  transform: translate(-50%, calc(-100% - 16px));
+}
+.map-point-popup::after {
+  content: '';
+  position: absolute;
+  left: calc(50% - 9px);
+  bottom: -9px;
+  width: 18px;
+  height: 18px;
+  background: white;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+.map-point-popup .selection-panel {
+  width: 100%;
+  max-height: 300px;
+  max-height: min(300px, 40vh);
+}
+.map-point-popup.popup-below {
+  transform: translate(-50%, 16px);
+}
+.map-point-popup.popup-below::after {
+  bottom: auto;
+  top: -9px;
+  transform: rotate(225deg);
 }
 .selection-panel h2 {
   flex: 1;
@@ -1351,7 +1460,7 @@ progress::-moz-progress-bar {
     display: none;
   }
   .map-info-stack {
-    bottom: 60px;
+    bottom: calc(30% + 70px);
     top: 58px;
     left: 10px;
     width: 246px;

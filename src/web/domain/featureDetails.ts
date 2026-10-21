@@ -1,5 +1,6 @@
 import { pointOnFeature } from '@turf/turf';
 import type { Feature } from 'geojson';
+import { templeRoster } from './templeRoster';
 
 const labels: Record<string, string> = {
   building: '建筑',
@@ -68,6 +69,22 @@ export function featureDetails(feature: Feature): { label: string; value: string
 
 export function featureSpeechText(feature: Feature): string {
   const name = text(feature.properties?.name) || '未命名要素';
+  const temple =
+    feature.properties?.category === 'temple'
+      ? templeRoster.find((entry) => entry.name === name)
+      : undefined;
+  if (temple) {
+    const [location, distance, sect, personnel, remarks] = temple.details;
+    const sentences = [
+      name,
+      `根据提供的寺庙资料，位于${location}`,
+      `距县城${distance}`,
+      `教派为${sect}`,
+      `核定人员${personnel}`,
+    ];
+    if (remarks !== '—') sentences.push(`备注：${remarks}`);
+    return sentences.join('。') + '。';
+  }
   const rows = featureDetails(feature);
   const details = rows
     .filter((row) => row.label !== '来源' && row.label !== '坐标')

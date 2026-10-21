@@ -69,9 +69,11 @@ const entries = [
 
 <style scoped>
 .map-legend {
-  position: relative;
+  position: absolute;
+  right: 16px;
+  bottom: 0;
   width: 272px;
-  max-width: 100%;
+  max-width: calc(100% - 84px);
   max-height: 40%;
   flex: 0 0 auto;
   overflow: auto;
@@ -161,6 +163,9 @@ const entries = [
 @media (max-width: 680px) {
   .map-legend {
     width: 246px;
+    right: 10px;
+    bottom: 0;
+    max-height: 30%;
   }
   .map-legend-grid {
     gap: 10px 6px;

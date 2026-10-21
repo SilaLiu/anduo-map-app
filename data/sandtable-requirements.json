@@ -256,7 +256,12 @@
       "name": "县城通往乡镇主干道",
       "category": "公路",
       "light_color": "黄色或白色",
-      "routes": ["X622", "X619", "C037", "S301"],
+      "routes": [
+        "X622",
+        "X619",
+        "C037",
+        "S301"
+      ],
       "remark": ""
     },
     {
@@ -274,28 +279,7 @@
   ],
   "temples": [
     {
-      "name": "白日寺",
-      "light": false,
-      "sign": true,
-      "building": true,
-      "remark": "按教派区分"
-    },
-    {
       "name": "乃母寺",
-      "light": false,
-      "sign": true,
-      "building": true,
-      "remark": "按教派区分"
-    },
-    {
-      "name": "强玛寺",
-      "light": false,
-      "sign": true,
-      "building": true,
-      "remark": "按教派区分"
-    },
-    {
-      "name": "雪琼寺",
       "light": false,
       "sign": true,
       "building": true,
@@ -307,6 +291,28 @@
       "sign": true,
       "building": true,
       "remark": "按教派区分"
+    },
+    {
+      "name": "白日寺",
+      "light": false,
+      "sign": true,
+      "building": true,
+      "remark": "按教派区分"
+    },
+    {
+      "name": "多玛寺"
+    },
+    {
+      "name": "卓古寺"
+    },
+    {
+      "name": "雪穷寺"
+    },
+    {
+      "name": "仲巴寺"
+    },
+    {
+      "name": "穷宗寺"
     }
   ],
   "rivers": [

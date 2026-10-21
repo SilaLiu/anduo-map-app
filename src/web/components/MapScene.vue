@@ -28,12 +28,16 @@ import {
   PolygonHierarchy,
   SceneMode,
   ConstantPositionProperty,
+  SceneTransforms,
 } from 'cesium';
 import type { Feature, FeatureCollection, Position } from 'geojson';
+import { pointOnFeature } from '@turf/turf';
 import { geometryBounds, collection } from '../domain/geo';
 import { mapLayers } from '../domain/referenceLayers';
 import { roadLabelText } from '../domain/roadLabels';
 import { navigationRouteStyle } from '../domain/routeStyle';
+import { townColors, isAnduoCounty } from '../domain/townColors';
+import { labelHierarchy, overlapsLabel, type LabelBox } from '../domain/labelHierarchy';
 import type { Annotation, DrawMode, DrawResult, Layers } from '../types';
 
 const props = defineProps<{
@@ -48,6 +52,7 @@ const props = defineProps<{
   exaggeration: number;
   buildings3d: boolean;
   labels: boolean;
+  templeTheme?: boolean;
   routeMode: boolean;
   route: Position[];
   vehiclePosition: Position | null;
@@ -63,6 +68,7 @@ const emit = defineEmits<{
   position: [lng: number, lat: number, height: number];
   terrainStatus: [status: string];
   routePoint: [position: Position];
+  popupPosition: [position: { x: number; y: number } | null];
 }>();
 const container = ref<HTMLDivElement>();
 const fatal = ref('');
@@ -78,6 +84,93 @@ let terrainGeneration = 0;
 let imageGeneration = 0;
 let routeEntity: Entity | undefined;
 let vehicleEntity: Entity | undefined;
+let lastLabelLayout = 0;
+let popupAnchor: Position | null = null;
+watch(
+  () => props.highlight,
+  (feature) => {
+    popupAnchor = feature ? pointOnFeature(feature).geometry.coordinates : null;
+    emit('popupPosition', null);
+    requestRender();
+  },
+  { immediate: true },
+);
+function updatePopupPosition() {
+  if (!viewer || !popupAnchor) return;
+  const scene = viewer.scene;
+  const cartographic = Cartographic.fromDegrees(popupAnchor[0], popupAnchor[1]);
+  const height = scene.globe.getHeight(cartographic) || 0;
+  const world = Cartesian3.fromDegrees(popupAnchor[0], popupAnchor[1], height);
+  if (
+    scene.mode === SceneMode.SCENE3D &&
+    Cartesian3.dot(
+      scene.globe.ellipsoid.geodeticSurfaceNormal(world),
+      Cartesian3.subtract(viewer.camera.positionWC, world, new Cartesian3()),
+    ) < 0
+  ) {
+    emit('popupPosition', null);
+    return;
+  }
+  const pixel = SceneTransforms.worldToWindowCoordinates(scene, world);
+  emit(
+    'popupPosition',
+    pixel &&
+      pixel.x >= 0 &&
+      pixel.y >= 0 &&
+      pixel.x <= scene.canvas.clientWidth &&
+      pixel.y <= scene.canvas.clientHeight
+      ? { x: pixel.x, y: pixel.y }
+      : null,
+  );
+}
+function layoutLabels() {
+  if (!viewer || performance.now() - lastLabelLayout < 100) return;
+  lastLabelLayout = performance.now();
+  const time = viewer.clock.currentTime;
+  const scale = Math.abs(viewer.camera.positionCartographic.height);
+  const occupied: LabelBox[] = [];
+  const ordered = [...sources.entries()].sort(
+    ([a], [b]) => labelHierarchy(a).priority - labelHierarchy(b).priority,
+  );
+  for (const [group, source] of ordered) {
+    if (['annotations', 'preview', 'highlight'].includes(group)) continue;
+    const rule =
+      group === 'temples' && props.templeTheme
+        ? { size: 14, range: 3000000, priority: 1 }
+        : labelHierarchy(group);
+    for (const entity of source.entities.values) {
+      const eligible = source.show && scale <= rule.range;
+      if (entity.point && entity.point.show?.getValue(time) !== eligible)
+        entity.point.show = new ConstantProperty(eligible);
+      if (!entity.label) continue;
+      let show = eligible && props.labels;
+      const position = entity.position?.getValue(time);
+      const screen = position && SceneTransforms.worldToWindowCoordinates(viewer.scene, position);
+      if (
+        !screen ||
+        screen.x < 0 ||
+        screen.y < 0 ||
+        screen.x > viewer.canvas.clientWidth ||
+        screen.y > viewer.canvas.clientHeight
+      )
+        show = false;
+      if (show && screen) {
+        const text = String(entity.label.text?.getValue(time) || '');
+        const width = [...text].length * rule.size + 18;
+        const box = {
+          x: screen.x - width / 2,
+          y: screen.y - rule.size - 25,
+          width,
+          height: rule.size + 14,
+        };
+        show = !occupied.some((other) => overlapsLabel(box, other));
+        if (show) occupied.push(box);
+      }
+      if (entity.label.show?.getValue(time) !== show)
+        entity.label.show = new ConstantProperty(show);
+    }
+  }
+}
 const vehicleImage =
   'data:image/svg+xml,' +
   encodeURIComponent(
@@ -135,9 +228,9 @@ async function updateSource(group: string, features: Feature[], color: string) {
   const data = collection(
     features.map((f, index) => {
       const geometry =
-        ['boundaries', 'neighborCounties'].includes(group) && f.geometry.type === 'Polygon'
+        group === 'neighborCounties' && f.geometry.type === 'Polygon'
           ? { type: 'MultiLineString' as const, coordinates: f.geometry.coordinates }
-          : ['boundaries', 'neighborCounties'].includes(group) && f.geometry.type === 'MultiPolygon'
+          : group === 'neighborCounties' && f.geometry.type === 'MultiPolygon'
             ? { type: 'MultiLineString' as const, coordinates: f.geometry.coordinates.flat() }
             : f.geometry;
       return {
@@ -162,7 +255,25 @@ async function updateSource(group: string, features: Feature[], color: string) {
       const p = entity.properties?.getValue(viewer.clock.currentTime) || {};
       const feature = features[p.__index];
       if (!feature) continue;
+      if (group === 'boundaries') {
+        const county = isAnduoCounty(p);
+        entity.show = county || props.visibility.boundaries !== false;
+        if (entity.polygon) {
+          entity.polygon.material = new ColorMaterialProperty(
+            Color.fromCssColorString(
+              county ? '#ffd740' : townColors[String(p.name)] || color,
+            ).withAlpha(county ? 0.035 : 0.24),
+          );
+          entity.polygon.outline = new ConstantProperty(false);
+        }
+      }
       const roadText = roadLabelText(group, p);
+      if (['rivers', 'lakes'].includes(group) && p.name) {
+        const anchor = pointOnFeature(feature).geometry.coordinates;
+        entity.position = new ConstantPositionProperty(
+          Cartesian3.fromDegrees(anchor[0], anchor[1]),
+        );
+      }
       if (entity.polyline && roadText) {
         const positions = entity.polyline.positions?.getValue(viewer.clock.currentTime) as
           Cartesian3[] | undefined;
@@ -191,16 +302,18 @@ async function updateSource(group: string, features: Feature[], color: string) {
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
           distanceDisplayCondition: new DistanceDisplayCondition(
             0,
-            ['towns', 'countySeats', 'annotations', 'preview', 'highlight'].includes(group)
+            ['annotations', 'preview', 'highlight'].includes(group)
               ? Number.POSITIVE_INFINITY
-              : 180000,
+              : group === 'temples'
+                ? 3000000
+                : labelHierarchy(group).range,
           ),
         });
       }
-      if (entity.position && (roadText || p.name) && group !== 'highlight') {
+      if (entity.position && (roadText || p.name) && !['highlight', 'boundaries'].includes(group)) {
         entity.label = new LabelGraphics({
           text: roadText || String(p.name),
-          font: '13px sans-serif',
+          font: `${group === 'countySeats' ? 'bold ' : ''}${labelHierarchy(group).size}px sans-serif`,
           fillColor: roadText ? tint : Color.WHITE,
           showBackground: true,
           backgroundColor: Color.BLACK.withAlpha(0.7),
@@ -211,7 +324,7 @@ async function updateSource(group: string, features: Feature[], color: string) {
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
           distanceDisplayCondition: new DistanceDisplayCondition(
             0,
-            ['towns', 'neighborCounties', 'countySeats'].includes(group) ? 2400000 : 180000,
+            group === 'temples' ? 3000000 : labelHierarchy(group).range,
           ),
           show: props.labels,
         });
@@ -248,31 +361,38 @@ async function updateSource(group: string, features: Feature[], color: string) {
         }
       }
     }
-    if (group === 'towns') {
-      source.clustering.enabled = true;
-      source.clustering.pixelRange = 26;
-      source.clustering.minimumClusterSize = 2;
-      source.clustering.clusterEvent.addEventListener((entities, cluster) => {
-        cluster.billboard.show = false;
-        cluster.point.show = true;
-        cluster.point.pixelSize = 16;
-        cluster.point.color = Color.fromCssColorString(color);
-        cluster.point.outlineColor = Color.BLACK;
-        cluster.point.outlineWidth = 1;
-        cluster.point.disableDepthTestDistance = Number.POSITIVE_INFINITY;
-        cluster.point.id = entities;
-        cluster.label.show = props.labels;
-        cluster.label.text = `${entities.length} 处`;
-        cluster.label.font = '12px sans-serif';
-        cluster.label.showBackground = true;
-        cluster.label.pixelOffset = new Cartesian2(0, -20);
-        cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
-        cluster.label.id = entities;
+    if (group === 'boundaries') {
+      features.forEach((feature, index) => {
+        const p = feature.properties || {};
+        const county = isAnduoCounty(p);
+        const rings =
+          feature.geometry.type === 'Polygon'
+            ? feature.geometry.coordinates
+            : feature.geometry.type === 'MultiPolygon'
+              ? feature.geometry.coordinates.flat()
+              : [];
+        rings.forEach((ring, part) => {
+          const edge = source.entities.add({
+            id: `boundary-edge:${index}:${part}`,
+            properties: p,
+            show: county || props.visibility.boundaries !== false,
+            polyline: {
+              positions: Cartesian3.fromDegreesArray(ring.flatMap((point) => [point[0], point[1]])),
+              clampToGround: true,
+              width: county ? 5 : 2,
+              material: Color.fromCssColorString(
+                county ? '#ffd740' : townColors[String(p.name)] || color,
+              ),
+              zIndex: county ? 100 : 10,
+            },
+          });
+          featureByEntity.set(edge, { feature, group });
+        });
       });
     }
     const old = sources.get(group);
     if (old) viewer.dataSources.remove(old, true);
-    source.show = props.visibility[group] !== false;
+    source.show = group === 'boundaries' || props.visibility[group] !== false;
     sources.set(group, source);
     await viewer.dataSources.add(source);
     requestRender();
@@ -321,8 +441,9 @@ function setImagery() {
 function refreshClustering() {
   sources.forEach((source) => {
     if (!source.clustering.enabled) return;
+    const pixelRange = source.clustering.pixelRange;
     source.clustering.pixelRange = 0;
-    source.clustering.pixelRange = 26;
+    source.clustering.pixelRange = pixelRange;
   });
   requestRender();
 }
@@ -505,7 +626,12 @@ watch(
   () => props.visibility,
   (value) => {
     sources.forEach((source, key) => {
-      source.show = value[key] !== false;
+      source.show = key === 'boundaries' || value[key] !== false;
+      if (key === 'boundaries')
+        source.entities.values.forEach((entity) => {
+          const p = entity.properties?.getValue(viewer?.clock.currentTime) || {};
+          entity.show = isAnduoCounty(p) || value.boundaries !== false;
+        });
     });
     requestRender();
   },
@@ -646,7 +772,6 @@ onMounted(() => {
       }
       const cluster = picks.find((p) => Array.isArray(p.id));
       if (cluster) {
-        void viewer.flyTo(cluster.id, { duration: 0.7 });
         return;
       }
       const selected =
@@ -654,6 +779,25 @@ onMounted(() => {
         mapped[0];
       if (selected) emit('select', selected.feature, selected.group);
     }, ScreenSpaceEventType.LEFT_CLICK);
+    handler.setInputAction((event: { position: Cartesian2 }) => {
+      if (!viewer || props.drawMode || props.routeMode) return;
+      const picks = viewer.scene.drillPick(event.position, 8);
+      const mapped = picks.map((p) => featureByEntity.get(p.id)).filter(Boolean);
+      const annotation = mapped.find((p) => p?.group === 'annotations');
+      const cluster = picks.find((p) => Array.isArray(p.id));
+      if (!annotation && cluster) {
+        void viewer.flyTo(cluster.id, { duration: 0.7 });
+        return;
+      }
+      const selected =
+        annotation ||
+        mapped.find((p) => !['boundaries', 'neighborCounties'].includes(p?.group || '')) ||
+        mapped[0];
+      if (selected) {
+        emit('select', selected.feature, selected.group);
+        focus(selected.feature);
+      }
+    }, ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
     handler.setInputAction((event: { position: Cartesian2 }) => {
       if (props.drawMode || props.routeMode) return;
       const position = pickPosition(event.position);
@@ -675,6 +819,8 @@ onMounted(() => {
       requestRender();
     });
     viewer.scene.morphComplete.addEventListener(refreshClustering);
+    viewer.scene.preUpdate.addEventListener(layoutLabels);
+    viewer.scene.postRender.addEventListener(updatePopupPosition);
     observer.observe(container.value!);
     viewer.scene.renderError.addEventListener((_scene, error) => {
       fatal.value = `三维场景渲染失败：${error.message}`;

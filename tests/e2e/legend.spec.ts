@@ -23,7 +23,10 @@ for (const viewport of [
         await heading.click();
       const detailBox = (await details.boundingBox())!;
       const legendBox = (await legend.boundingBox())!;
-      expect(detailBox.y + detailBox.height).toBeLessThanOrEqual(legendBox.y - 4);
+      expect(
+        detailBox.x + detailBox.width <= legendBox.x - 4 ||
+          detailBox.y + detailBox.height <= legendBox.y - 4,
+      ).toBe(true);
       expect(detailBox.height).toBeGreaterThan(30);
     }
     await page.getByRole('button', { name: '关闭详情', exact: true }).click();
@@ -32,7 +35,10 @@ for (const viewport of [
     const box = (await legend.boundingBox())!;
     expect(box.x).toBeGreaterThanOrEqual(0);
     expect(box.x + box.width).toBeLessThanOrEqual(viewport.width);
+    expect(viewport.width - (box.x + box.width)).toBeLessThanOrEqual(16);
     expect(box.y + box.height).toBeLessThan(viewport.height);
+    const mapBox = (await page.locator('.map-area').boundingBox())!;
+    expect(mapBox.y + mapBox.height - (box.y + box.height)).toBeCloseTo(0, 0);
     await heading.click();
     await expect(heading).toHaveAttribute('aria-expanded', 'false');
     await expect(legend.getByText('国道', { exact: true })).toBeHidden();

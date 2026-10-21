@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import type { FeatureCollection } from 'geojson';
-import { referenceLayers } from '../../src/web/domain/referenceLayers';
+import { mapLayers, referenceLayers } from '../../src/web/domain/referenceLayers';
 import { isAnduoBoundary } from '../../src/web/domain/anduoScope';
 import { classifyRoad } from '../../src/web/domain/roadClasses.mjs';
 import { point, pointToLineDistance } from '@turf/turf';
@@ -11,6 +11,15 @@ const read = (name: string): FeatureCollection =>
   JSON.parse(readFileSync(`data/reference/${name}.geojson`, 'utf8'));
 
 describe('regional reference layers', () => {
+  it('provides three independent Anduo thematic layers without deployment records', () => {
+    expect(mapLayers.find((layer) => layer.key === 'temples')?.name).toBe('寺庙分布图（安多县）');
+    expect(mapLayers.find((layer) => layer.key === 'roads')?.name).toBe('道路交通图（安多县）');
+    expect(mapLayers.find((layer) => layer.key === 'militiaDeployment')?.name).toBe(
+      '民兵部署图（安多县）',
+    );
+    expect(read('militiaDeployment').features).toEqual([]);
+    expect(new Set(mapLayers.map((layer) => layer.key)).size).toBe(mapLayers.length);
+  });
   it('includes real national road geometry near all six target county seats', () => {
     const names = ['色尼区', '聂荣县', '比如县', '班戈县', '双湖县', '当雄县'];
     const counties = read('neighborCounties').features.filter((f) =>
@@ -34,7 +43,7 @@ describe('regional reference layers', () => {
     for (const layer of referenceLayers) {
       const source = read(layer.key);
       expect(Array.isArray(source.features)).toBe(true);
-      if (!['countyRoads', 'townshipRoads'].includes(layer.key))
+      if (!['countyRoads', 'townshipRoads', 'militiaDeployment'].includes(layer.key))
         expect(source.features.length).toBeGreaterThan(0);
       const staged = JSON.parse(
         readFileSync(`web-data/data/reference/${layer.key}.geojson`, 'utf8'),
