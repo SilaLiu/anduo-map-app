@@ -3,6 +3,15 @@ import { defaultDeploymentRows, deploymentMarkerLayout } from '../../src/web/dom
 import { deploymentMarker } from '../../src/web/domain/deploymentMarker';
 
 describe('shared township deployment callout', () => {
+  it('uses a five-point star for local militia and keeps its caption and count', () => {
+    const row = { ...defaultDeploymentRows()[0], level: '地方民兵' as const, name: '乡镇民兵', count: 25 };
+    const svg = decodeURIComponent(deploymentMarker([row]).image.split(',')[1]);
+    expect(svg).toContain('<polygon points=');
+    expect(svg.match(/<polygon/g)).toHaveLength(1);
+    expect(svg).toContain('乡镇民兵');
+    expect(svg).toContain('25人');
+    expect(svg).not.toContain('<circle');
+  });
   it('places all symbols above one shared leader and captions below it', () => {
     const rows = defaultDeploymentRows();
     const marker = deploymentMarker(rows);

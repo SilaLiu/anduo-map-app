@@ -22,5 +22,8 @@ defineProps<{ level: string }>();
       <path d="M90 15 V121 M56 59 H124 M56 199 H124" />
       <circle cx="90" cy="147" r="36" />
     </template>
+    <template v-else-if="level === '地方民兵'">
+      <polygon points="90,20 111,77 172,80 124,119 141,179 90,144 39,179 56,119 8,80 69,77" fill="currentColor" />
+    </template>
   </svg>
 </template>

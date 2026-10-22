@@ -1,0 +1,41 @@
+import { test, expect } from '@playwright/test';
+
+test('deployment editor shows the table without a connector preview', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: '民兵部署', exact: true }).click();
+  const panel = page.getByRole('region', { name: '兵力部署编组资料表' });
+  await expect(panel).toBeVisible();
+  await expect(panel).toHaveCSS('border-bottom-left-radius', '10px');
+  await expect(panel).toHaveCSS('border-bottom-right-radius', '10px');
+  await expect(panel.locator('.deployment-canvas')).toHaveCount(0);
+  await expect(panel.getByRole('table')).toBeVisible();
+  await expect(panel.getByRole('button', { name: '保存部署', exact: true })).toBeVisible();
+  await expect(panel.getByRole('button', { name: '定位乡镇', exact: true })).toBeVisible();
+  const count = await panel.getByLabel('编组名称').count();
+  await panel.getByRole('button', { name: '＋ 添加编组', exact: true }).click();
+  await expect(panel.getByLabel('编组名称')).toHaveCount(count + 1);
+  await panel.getByRole('button', { name: '删除', exact: true }).last().click();
+  await expect(panel.getByLabel('编组名称')).toHaveCount(count);
+});
+
+test('local militia uses a star and survives saving and reloading', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: '绘制点标注', exact: true })).toBeEnabled({ timeout: 60000 });
+  await page.getByRole('button', { name: '民兵部署', exact: true }).click();
+  const panel = page.getByRole('region', { name: '兵力部署编组资料表' });
+  await panel.getByRole('button', { name: '＋ 添加编组', exact: true }).click();
+  await panel.getByLabel('层级', { exact: true }).last().selectOption('地方民兵');
+  await panel.getByLabel('编组名称').last().fill('地方民兵测试组');
+  await panel.getByLabel('人数', { exact: true }).last().fill('25');
+  await expect(panel.getByRole('img', { name: '地方民兵图标' })).toBeVisible();
+  await expect(panel.getByRole('img', { name: '地方民兵图标' }).locator('polygon')).toHaveCount(1);
+  await panel.getByRole('button', { name: '保存部署', exact: true }).click();
+  await expect(page.locator('.save-status')).toHaveText('已保存到浏览器');
+  await page.reload();
+  await expect(page.getByRole('button', { name: '绘制点标注', exact: true })).toBeEnabled({ timeout: 60000 });
+  await page.getByRole('button', { name: '民兵部署', exact: true }).click();
+  await expect(panel.getByLabel('层级', { exact: true }).last()).toHaveValue('地方民兵');
+  await expect(panel.getByLabel('编组名称').last()).toHaveValue('地方民兵测试组');
+  await expect(panel.getByLabel('人数', { exact: true }).last()).toHaveValue('25');
+  await expect(panel.getByRole('img', { name: '地方民兵图标' })).toBeVisible();
+});

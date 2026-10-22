@@ -75,7 +75,8 @@ const emit = defineEmits<{
   select: [feature: Feature, group: string];
   draw: [result: DrawResult];
   vertices: [count: number];
-  position: [lng: number, lat: number, height: number];
+  position: [lng: number, lat: number];
+  positionClear: [];
   terrainStatus: [status: string];
   basemapFallback: [];
   routePoint: [position: Position];
@@ -83,6 +84,11 @@ const emit = defineEmits<{
 }>();
 const container = ref<HTMLDivElement>();
 const fatal = ref('');
+const cursorPixel = ref<{ x: number; y: number } | null>(null);
+function clearCursor() {
+  cursorPixel.value = null;
+  emit('positionClear');
+}
 let viewer: Viewer | undefined;
 let handler: ScreenSpaceEventHandler | undefined;
 let observer: ResizeObserver | undefined;
@@ -743,6 +749,23 @@ function home() {
 function focus(feature: Feature) {
   if (!viewer) return;
   const [west, south, east, north] = geometryBounds(feature);
+  // County polygons must be framed by their extent, not the previous zoom
+  // distance (which may be only a few hundred metres after viewing a building).
+  if (
+    ['Polygon', 'MultiPolygon'].includes(feature.geometry.type) &&
+    feature.properties?.level === 'county'
+  ) {
+    const padX = Math.max((east - west) * 0.1, 0.003);
+    const padY = Math.max((north - south) * 0.1, 0.003);
+    viewer.camera.cancelFlight();
+    viewer.camera.flyTo({
+      destination: Rectangle.fromDegrees(west - padX, south - padY, east + padX, north + padY),
+      orientation: { heading: 0, pitch: -Math.PI / 2, roll: 0 },
+      duration: 1.8,
+      easingFunction: EasingFunction.CUBIC_IN_OUT,
+    });
+    return;
+  }
   if (viewer.scene.mode === SceneMode.SCENE3D) {
     const camera = viewer.camera;
     const canvas = viewer.scene.canvas;
@@ -1046,14 +1069,15 @@ onMounted(() => {
       if (position) emit('draw', { mode: 'point', coordinates: [position] });
     }, ScreenSpaceEventType.RIGHT_CLICK);
     handler.setInputAction((event: { endPosition: Cartesian2 }) => {
+      cursorPixel.value = { x: event.endPosition.x, y: event.endPosition.y };
       const p = pickPosition(event.endPosition);
       if (p && viewer)
         emit(
           'position',
           p[0],
           p[1],
-          viewer.scene.globe.getHeight(Cartographic.fromDegrees(p[0], p[1])) || 0,
         );
+      else emit('positionClear');
     }, ScreenSpaceEventType.MOUSE_MOVE);
     observer = new ResizeObserver(() => {
       viewer?.resize();
@@ -1102,6 +1126,11 @@ defineExpose({
     class="scene"
     :class="{ drawing: drawMode }"
     aria-label="安多县三维地图"
+    @mouseleave="clearCursor"
   ></div>
+  <div v-if="cursorPixel" class="map-crosshair" aria-hidden="true">
+    <div class="map-crosshair-horizontal" :style="{ top: `${cursorPixel.y}px` }"></div>
+    <div class="map-crosshair-vertical" :style="{ left: `${cursorPixel.x}px` }"></div>
+  </div>
   <div v-if="fatal" class="scene-error" role="alert">{{ fatal }}</div>
 </template>

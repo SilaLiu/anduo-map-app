@@ -258,6 +258,23 @@ progress::-moz-progress-bar {
 }
 .search-box > svg {
   color: var(--muted);
+  flex-shrink: 0;
+}
+.search-box input {
+  flex: 1;
+  min-width: 0;
+  width: 0;
+}
+.search-box .search-clear,
+.search-box .search-submit {
+  flex-shrink: 0;
+  min-height: 44px;
+  margin: 4px 0;
+}
+.search-box .search-submit {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
 }
 .header-actions {
   display: flex;
@@ -610,8 +627,31 @@ progress::-moz-progress-bar {
   position: absolute;
   inset: 0;
 }
-.scene.drawing canvas {
+.scene canvas {
   cursor: crosshair;
+}
+.map-crosshair {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.map-crosshair-horizontal,
+.map-crosshair-vertical {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 2px #172825;
+  pointer-events: none;
+}
+.map-crosshair-horizontal {
+  left: 0;
+  width: 100%;
+  height: 1px;
+}
+.map-crosshair-vertical {
+  top: 0;
+  height: 100%;
+  width: 1px;
 }
 .scene-error {
   position: absolute;
@@ -746,6 +786,8 @@ progress::-moz-progress-bar {
   bottom: 33px;
   left: 16px;
   display: flex;
+  flex-wrap: wrap;
+  max-width: calc(100% - 32px);
   align-items: center;
   gap: 8px;
   padding: 7px 10px;
@@ -754,6 +796,11 @@ progress::-moz-progress-bar {
   color: #e9f1ee;
   font-size: 10px;
   pointer-events: none;
+}
+.cursor-coordinate {
+  flex-basis: 100%;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
 }
 .caption-divider {
   height: 11px;
@@ -1316,8 +1363,8 @@ progress::-moz-progress-bar {
     min-height: 500px;
   }
   .app-header {
-    height: 96px;
-    flex-basis: 96px;
+    height: 120px;
+    flex-basis: 120px;
     padding: 10px 12px;
     gap: 6px;
     flex-wrap: wrap;
@@ -1339,7 +1386,7 @@ progress::-moz-progress-bar {
   .search-box {
     order: 3;
     flex: 0 0 100%;
-    height: 32px;
+    height: 54px;
   }
   .search-box input:not([type]) {
     font-size: 12px;

@@ -13,7 +13,9 @@ export function deploymentMarker(rows: DeploymentRow[]) {
   const width = layout.width + 74;
   const height = 170;
   const units = layout.items.map(({ row, x }) => {
-    const symbol = row.level === '班'
+    const symbol = row.level === '地方民兵'
+      ? '<polygon points="18,5 22.2,16.4 34.4,17 24.8,24.8 28.2,36.8 18,29.8 7.8,36.8 11.2,24.8 1.6,17 13.8,16.4" fill="#fff"/>'
+      : row.level === '班'
       ? '<path d="M18 5v24M11 14h14M11 43h14"/><circle cx="18" cy="31" r="8"/>'
       : `<path d="M18 5v16L5 37h26L18 21M7 43h22M13 12h10${row.level === '连' ? 'M13 18h10' : ''}"/>`;
     return `<g transform="translate(${x + 2},0)">

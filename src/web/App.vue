@@ -161,7 +161,7 @@ const library = shallowRef<LibraryItem[]>([]),
   librarySearch = ref('');
 const libraryBusy = ref(false),
   libraryLoaded = ref(false);
-const coordinate = ref([91.682, 32.262, 0]);
+const coordinate = ref<[number, number] | null>(null);
 const visibility = reactive<Record<string, boolean>>({
   annotations: true,
   boundaries: true,
@@ -718,7 +718,7 @@ onBeforeUnmount(() => {
       <div class="brand">
         <Globe2 :size="26" />
         <div>
-          <h1>安多县三维沙盘</h1>
+          <h1>安多县电子三维沙盘</h1>
           <span>西藏自治区 · 那曲市</span>
         </div>
       </div>
@@ -728,14 +728,17 @@ onBeforeUnmount(() => {
           aria-label="搜索名称或经纬度"
           placeholder="搜索名称或经度,纬度"
         /><button
-          v-if="search"
-          class="icon-button"
+          class="search-clear"
           type="button"
+          :disabled="!search"
           title="清除搜索"
           aria-label="清除搜索"
           @click="search = ''"
         >
-          <X :size="15" />
+          <X :size="15" />清空
+        </button>
+        <button class="search-submit" type="submit" :disabled="!search.trim()">
+          搜索
         </button>
       </form>
       <div class="header-actions">
@@ -876,7 +879,7 @@ onBeforeUnmount(() => {
             >
               <button
                 class="feature-main"
-                @click="pickFeature(b, 'boundaries')"
+                @click="pickFeature(b, 'boundaries'); map?.focus(b)"
                 @dblclick="map?.focus(b)"
               >
                 <Globe2 :size="17" /><span
@@ -1022,7 +1025,8 @@ onBeforeUnmount(() => {
           @route-point="chooseRoutePoint"
           @draw="drawn"
           @vertices="vertexCount = $event"
-          @position="(lng, lat, height) => (coordinate = [lng, lat, height])"
+          @position="(lng, lat) => (coordinate = [lng, lat])"
+          @position-clear="coordinate = null"
           @terrain-status="terrainStatus = $event"
           @basemap-fallback="basemap = 'street'"
         />
@@ -1370,6 +1374,10 @@ onBeforeUnmount(() => {
           :layers="layers"
         />
         <div class="map-caption">
+          <span class="cursor-coordinate" aria-label="鼠标经纬度">
+            <template v-if="coordinate">经度 {{ coordinate[0].toFixed(6) }}° · 纬度 {{ coordinate[1].toFixed(6) }}°</template>
+            <template v-else>移动鼠标到地图查看经纬度</template>
+          </span>
           <span class="live-dot"></span>{{ terrainStatus
           }}<span class="caption-divider"></span>WGS84
           <span v-if="selectedTheme">
@@ -1379,9 +1387,7 @@ onBeforeUnmount(() => {
       </main>
     </div>
     <footer class="statusbar">
-      <span>{{ coordinate[0].toFixed(5) }}° E &nbsp; {{ coordinate[1].toFixed(5) }}° N</span
-      ><span v-if="terrain && terrainStatus === '真实地形'"
-        >地表高程 {{ coordinate[2].toFixed(0) }} m</span
+      <span>{{ coordinate ? `经度 ${coordinate[0].toFixed(6)}° · 纬度 ${coordinate[1].toFixed(6)}°` : '移动鼠标到地图查看经纬度' }}</span
       ><span class="save-status" :class="{ 'error-text': saveStatus === '未保存' }">{{
         saveStatus
       }}</span

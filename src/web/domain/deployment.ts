@@ -1,4 +1,4 @@
-export type DeploymentLevel = '连' | '排' | '班';
+export type DeploymentLevel = '连' | '排' | '班' | '地方民兵';
 
 export type DeploymentRow = {
   id: number;
