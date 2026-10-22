@@ -534,12 +534,13 @@ async function importFile(event: Event) {
       );
       if (
         !confirm(
-          `恢复备份将替换当前 ${annotations.value.length} 个标注与 ${boundaries.value.length} 个边界，继续？`,
+          `恢复备份将替换当前 ${annotations.value.length} 个标注、${boundaries.value.length} 个边界及全部兵力部署数据，继续？`,
         )
       )
         return;
       annotations.value = annos;
       boundaries.value = bounds;
+      deployments.value = raw.deployments ?? defaultDeployments();
       await loadReferenceData();
       loadFailed.value = false;
     } else {
@@ -975,7 +976,7 @@ onBeforeUnmount(() => {
             /></label>
             <h3>工作区</h3>
             <p class="muted">
-              在底图列表选择安多县专题地图。寺庙和道路复用现有县域数据，覆盖可能不完整；部分寺庙位置为估算，待核实。民兵部署图暂无数据，不会生成点位。
+              完整备份包含标注、行政边界及兵力部署，可在其他机器上恢复。恢复会替换当前工作区数据，建议先导出当前备份。寺庙和道路复用现有县域数据，部分寺庙位置为估算，待核实。
             </p>
             <p class="muted">
               交通参考数据来自历史 OSM

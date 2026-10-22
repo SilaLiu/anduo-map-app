@@ -39,3 +39,32 @@ test('local militia uses a star and survives saving and reloading', async ({ pag
   await expect(panel.getByLabel('人数', { exact: true }).last()).toHaveValue('25');
   await expect(panel.getByRole('img', { name: '地方民兵图标' })).toBeVisible();
 });
+
+test('workspace backup restores deployment data and persists it after reload', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: '绘制点标注', exact: true })).toBeEnabled({ timeout: 60000 });
+  await page.getByRole('button', { name: '民兵部署', exact: true }).click();
+  const panel = page.getByRole('region', { name: '兵力部署编组资料表' });
+  await panel.getByLabel('层级', { exact: true }).first().selectOption('地方民兵');
+  await panel.getByLabel('编组名称').first().fill('跨机器备份民兵');
+  await panel.getByLabel('人数', { exact: true }).first().fill('42');
+  await page.getByRole('button', { name: '恢复完整界面', exact: true }).click();
+  const downloadEvent = page.waitForEvent('download');
+  await page.getByRole('button', { name: '导出工作区备份', exact: true }).click();
+  const download = await downloadEvent;
+  const path = (await download.path())!;
+  await panel.getByLabel('编组名称').first().fill('修改后的名称');
+  await page.getByRole('button', { name: '图层', exact: true }).click();
+  const chooserEvent = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: '恢复工作区备份', exact: true }).click();
+  page.once('dialog', (dialog) => dialog.accept());
+  await (await chooserEvent).setFiles(path);
+  await expect(panel.getByLabel('编组名称').first()).toHaveValue('跨机器备份民兵');
+  await expect(page.locator('.save-status')).toHaveText('已保存到浏览器');
+  await page.reload();
+  await expect(page.getByRole('button', { name: '绘制点标注', exact: true })).toBeEnabled({ timeout: 60000 });
+  await page.getByRole('button', { name: '民兵部署', exact: true }).click();
+  await expect(panel.getByLabel('编组名称').first()).toHaveValue('跨机器备份民兵');
+  await expect(panel.getByLabel('层级', { exact: true }).first()).toHaveValue('地方民兵');
+  await expect(panel.getByLabel('人数', { exact: true }).first()).toHaveValue('42');
+});
