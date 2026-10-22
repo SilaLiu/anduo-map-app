@@ -1,6 +1,7 @@
 import { area, bbox, booleanIntersects } from '@turf/turf';
 import type { Feature, Polygon, Position } from 'geojson';
 import { normalizeGeometry, toAnnotation } from '../domain/geo';
+import { offlineConfig } from './offline';
 
 export const targets = {
   buildings: '建筑',
@@ -128,6 +129,8 @@ export async function extract(
   progress: Progress,
 ): Promise<Feature[]> {
   if (region.geometry.type !== 'Polygon') throw new Error('请选择面状提取范围');
+  if ((await offlineConfig()).enabled)
+    throw new Error('离线模式：本地地物查询及影像提取引擎尚未接入，不会访问网络服务');
   if (!selected.length) throw new Error('至少选择一种地物');
   if (area(region) > 25000000) throw new Error('单次提取范围不能超过 25 平方公里');
   if (engine === 'overpass')

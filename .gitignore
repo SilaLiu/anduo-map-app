@@ -1,6 +1,8 @@
 node_modules/
 dist/
 web-dist/
+web-dist-windows/
+desktop-dist/
 web-data/
 test-results/
 playwright-report/
@@ -13,6 +15,8 @@ playwright-report/
 index.html.bak
 *.log
 .venv/
+.offline-venv/
+desktop-resources/
 __pycache__/
 *.py[cod]
 .cache/

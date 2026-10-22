@@ -3,6 +3,18 @@ import { defaultDeploymentRows, deploymentMarkerLayout } from '../../src/web/dom
 import { deploymentMarker } from '../../src/web/domain/deploymentMarker';
 
 describe('shared township deployment callout', () => {
+  it('renders all four unit symbols, captions and the leader in the same red', () => {
+    for (const level of ['连', '排', '班', '地方民兵'] as const) {
+      const row = { ...defaultDeploymentRows()[0], level };
+      const svg = decodeURIComponent(deploymentMarker([row]).image.split(',')[1]);
+      expect(svg).toContain('fill="none" stroke="#d32f2f" stroke-width="2.5"');
+      if (level === '地方民兵') expect(svg).toContain('fill="#d32f2f"');
+      expect(svg).toContain('text-anchor="middle" fill="#d32f2f"');
+      expect(svg).toContain('stroke="#d32f2f" stroke-width="3"');
+      expect(svg).not.toContain('white');
+      expect(svg).not.toContain('#70212b');
+    }
+  });
   it('uses a five-point star for local militia and keeps its caption and count', () => {
     const row = { ...defaultDeploymentRows()[0], level: '地方民兵' as const, name: '乡镇民兵', count: 25 };
     const svg = decodeURIComponent(deploymentMarker([row]).image.split(',')[1]);

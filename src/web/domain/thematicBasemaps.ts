@@ -7,6 +7,7 @@ export const thematicBasemaps = [
 ] as const;
 
 export function thematicLayerKeys(key: string): string[] {
+  if (key === 'theme-temples') return ['temples', 'countySeats', 'towns'];
   if (key === 'theme-militia') return ['militiaDeployment', 'countySeats', 'towns', 'villages'];
   if (key === 'theme-roads')
     return [

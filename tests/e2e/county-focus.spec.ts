@@ -1,6 +1,34 @@
 import { test, expect } from '@playwright/test';
 
-test('clicking Anduo county frames its full boundary even after zooming in', async ({ page }) => {
+test('homepage defaults to a tilted 3D county-seat view and can be revisited', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: '绘制点标注', exact: true })).toBeEnabled({ timeout: 60000 });
+  const home = page.getByRole('button', { name: '主页', exact: true });
+  await expect(home).toHaveAttribute('aria-pressed', 'true');
+  await expect.poll(() => page.evaluate(() => {
+    const app = (document.querySelector('#app') as any).__vue_app__._instance.setupState;
+    const layers = app.map.$.setupState.viewer.imageryLayers;
+    return app.basemap === 'satellite' && layers.length > 0 &&
+      layers.get(0).imageryProvider.url.includes('World_Imagery');
+  })).toBe(true);
+  const checkCamera = async () => {
+    await expect.poll(() => page.evaluate(() => {
+      const app = (document.querySelector('#app') as any).__vue_app__._instance.setupState;
+      const camera = app.map.$.setupState.viewer.camera;
+      return app.mode === '3D' && Math.abs(camera.pitch + Math.PI / 4) < 0.02 &&
+        camera.positionCartographic.height > 2000 && camera.positionCartographic.height < 4500;
+    }), { timeout: 15000 }).toBe(true);
+  };
+  await checkCamera();
+  await page.getByRole('button', { name: '全览', exact: true }).click();
+  await page.getByRole('button', { name: '2D', exact: true }).click();
+  await home.click();
+  await checkCamera();
+  await expect(home).toHaveAttribute('aria-pressed', 'true');
+});
+
+for (const target of ['county', 'overview']) {
+test(`clicking ${target} frames the full Anduo boundary even after zooming in`, async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('button', { name: '绘制点标注', exact: true })).toBeEnabled({ timeout: 60000 });
   await page.getByRole('button', { name: '恢复完整界面', exact: true }).click();
@@ -12,7 +40,11 @@ test('clicking Anduo county frames its full boundary even after zooming in', asy
     viewer.camera.cancelFlight();
     viewer.camera.zoomIn(viewer.camera.positionCartographic.height - 2000);
   });
-  await page.locator('.feature-main').filter({ has: page.locator('b', { hasText: /^安多县$/ }) }).click();
+  if (target === 'county') {
+    await page.locator('.feature-main').filter({ has: page.locator('b', { hasText: /^安多县$/ }) }).click();
+  } else {
+    await page.getByRole('button', { name: '全览', exact: true }).click();
+  }
   await expect.poll(() => page.evaluate(() => {
     const app = (document.querySelector('#app') as any).__vue_app__._instance.setupState;
     const viewer = app.map.$.setupState.viewer;
@@ -28,3 +60,4 @@ test('clicking Anduo county frames its full boundary even after zooming in', asy
     }) && camera.positionCartographic.height > 100000 && Math.abs(camera.pitch + Math.PI / 2) < 0.01;
   }), { timeout: 15000 }).toBe(true);
 });
+}

@@ -16,13 +16,14 @@ const entries = [
   { key: 'villages', name: '行政村', symbol: 'point' },
   { key: 'rivers', name: '河流', symbol: 'line' },
   { key: 'lakes', name: '湖泊', symbol: 'area' },
-  { key: 'boundaries', name: '县 / 乡镇界', symbol: 'line' },
+  { key: 'boundaries', name: '安多县界（黄色实线）', symbol: 'line' },
+  { key: 'boundaries', name: '四乡镇外围界（黄色虚线）', symbol: 'boundary' },
   { key: 'neighborCounties', name: '周边县界', symbol: 'line' },
 ].map((entry) => ({
   ...entry,
   color:
     entry.key === 'boundaries'
-      ? '#f46c82'
+      ? '#ffd740'
       : mapLayers.find((layer) => layer.key === entry.key)!.color,
 }));
 </script>
@@ -42,7 +43,7 @@ const entries = [
       <ul class="map-legend-grid">
         <li
           v-for="entry in entries"
-          :key="entry.key"
+          :key="entry.name"
           :class="{ 'is-hidden': visibility[entry.key] === false }"
           :title="visibility[entry.key] === false ? `${entry.name}图层已关闭` : entry.name"
         >
@@ -127,6 +128,10 @@ const entries = [
   height: 5px;
   border: 1px solid #354052;
   background: repeating-linear-gradient(90deg, #354052 0 8px, #fff 8px 16px);
+}
+.symbol-boundary {
+  height: 0;
+  border-top: 3px dashed var(--symbol-color);
 }
 .symbol-point {
   height: 12px;

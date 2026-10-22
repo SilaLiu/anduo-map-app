@@ -1,6 +1,16 @@
 import { expect, it } from 'vitest';
 import { thematicBasemaps, thematicVisibility } from '../../src/web/domain/thematicBasemaps';
 
+it('shows county and township landmarks with temples without enabling deployment or changing preferences', () => {
+  const original = { countySeats: false, towns: false, villages: true, temples: false, militiaDeployment: true };
+  const result = thematicVisibility('theme-temples', original);
+  expect(Object.keys(result).filter((key) => result[key]).sort()).toEqual([
+    'boundaries', 'countySeats', 'temples', 'towns',
+  ]);
+  expect(original).toEqual({ countySeats: false, towns: false, villages: true, temples: false, militiaDeployment: true });
+  expect(thematicVisibility('', original)).toBe(original);
+});
+
 it('shows existing settlement landmarks in the militia theme without changing preferences', () => {
   const original = { countySeats: false, towns: false, villages: false, temples: true };
   const result = thematicVisibility('theme-militia', original);

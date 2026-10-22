@@ -15,7 +15,7 @@ for (const width of [1440, 390]) {
     expect(map.y + map.height - box.y - box.height).toBeCloseTo(16, 0);
     expect(map.x + map.width - box.x - box.width).toBeCloseTo(16, 0);
     expect(box.x).toBeGreaterThanOrEqual(map.x);
-    await page.getByRole('button', { name: '综合', exact: true }).click();
+    await page.getByRole('button', { name: '全览', exact: true }).click();
     await expect(table).toBeHidden();
     await expect(legend).toBeVisible();
   });

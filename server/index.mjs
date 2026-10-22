@@ -1,5 +1,6 @@
 import { createServer } from 'node:http';
 import { parsePoint, planRoute } from './routing.mjs';
+import { proxyAMap } from './amap-proxy.mjs';
 
 // Keep this service on loopback. Production ingress must provide authentication/rate limiting.
 createServer(async (req, res) => {
@@ -10,6 +11,11 @@ createServer(async (req, res) => {
     res.end(JSON.stringify(body));
   };
   const url = new URL(req.url || '/', 'http://localhost');
+  if (url.pathname.startsWith('/_AMapService/')) return proxyAMap(req, res);
+  if (url.pathname === '/api/amap/status' && req.method === 'GET')
+    return send(process.env.AMAP_SECURITY_JSCODE ? 200 : 503, {
+      configured: !!process.env.AMAP_SECURITY_JSCODE,
+    });
   if (url.pathname !== '/api/route' || req.method !== 'GET')
     return send(404, { error: '接口不存在' });
   let start, end;

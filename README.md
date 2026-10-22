@@ -1,6 +1,6 @@
 # 安多县三维沙盘
 
-安多县卫星地图与三维地理沙盘，基于 **CesiumJS + Vue 3 + TypeScript + Vite**。通过浏览器使用，已取消 Electron 运行入口和 Windows 打包脚本。
+安多县卫星地图与三维地理沙盘，基于 **CesiumJS + Vue 3 + TypeScript + Vite**。支持浏览器使用及 Electron Windows 桌面安装包。桌面版使用当前网页界面，不使用 `legacy/` 中的旧版入口。
 
 作者：**Teddy**  
 邮箱：**qingyiliu0@gmail.com**
@@ -19,6 +19,74 @@ pnpm dev
 也可使用 `./start.sh` 或 `./start.ps1` 启动网页开发服务；Python 仅用于可选的数据采集，不影响网页运行。
 
 ## 运行环境
+
+### 离线运行改造
+
+已接入第一阶段的 Electron 离线资源包选择、本地底图/地形加载和公网请求阻断。使用说明、资源清单格式及尚未完成的功能见 [离线资源说明](docs/offline-resources.md)。**当前还不是全功能离线交付版**：真实地图数据需另行准备，离线路由、提取及语音适配尚待完成。
+
+开发验证：先执行 `pnpm build`，再执行 `node scripts/smoke-offline.mjs`。该测试使用合成瓦片验证接口与离线保护，不代表真实地图资源或 Windows 真机验收。
+
+### Windows 桌面安装包
+
+支持 Windows 10/11 x64，目标电脑无需安装 Node.js、Python 或单独启动网页服务器。复制安装包安装后，从桌面快捷方式启动。
+
+构建环境需要 Node.js 22.12+（推荐 24 LTS）、pnpm 10 和网络：
+
+```powershell
+pnpm install --frozen-lockfile
+# 如果 pnpm 提示 Electron 安装脚本被阻止，手动下载对应运行时：
+node node_modules/electron/install.js
+pnpm desktop:win
+```
+
+安装包输出：`desktop-dist/AnduoSandtable-Setup-1.0.0-x64.exe`。`desktop-dist/win-unpacked/` 是免安装运行目录，必须完整复制，不能只复制其中的 exe。也可在 GitHub Actions 手动运行 **Build Windows Desktop**，下载工作流生成的安装包。macOS 可尝试交叉打包，但发布前必须在 Windows 真机验证。
+
+本机桌面调试与冒烟测试：
+
+```bash
+pnpm desktop
+# 使用已构建的 web-dist，测试临时独立数据目录，不影响实际数据
+pnpm desktop:smoke
+```
+
+数据迁移：先在原浏览器“图层 → 工作区 → 导出完整备份”，再在桌面版“恢复工作区备份”。完整备份包含标注、行政边界及全部乡镇兵力部署；恢复会替换当前数据。浏览器数据不会自动装入安装包。旧版不含部署字段的备份恢复时，部署回到默认值。
+
+桌面版数据保存在 Windows `%APPDATA%\AnduoSandtable` 下的 Chromium 用户配置中（IndexedDB），独立于浏览器和安装目录。卸载默认保留数据，但仍应定期导出 JSON 备份。复制安装包不等于复制已编辑数据。
+
+桌面包仅包含运行所需的网页资源和路线计算代码，不包含 `.env.local`、私人部署文件或源码数据目录。现阶段未做代码签名，Windows 可能显示“未知发布者”或 SmartScreen 提示；正式分发建议使用受信任证书签名，不要要求用户关闭系统安全防护。
+
+在线影像、地形及地物提取仍可能需要网络，不是全离线地图包。桌面路线功能读取启动进程的 `AMAP_WEB_KEY` 系统环境变量，不需要另开 Node 路线服务；未配置时其余沙盘功能可正常使用。不要把服务 Key 写入前端或提交到仓库，分发桌面应用也不能保证本机 Key 不被本机用户读取。前端的 `VITE_*` 地形/影像配置仍在构建时生效。
+
+#### Windows 永久配置高德路线 API Key
+
+安装包不包含开发电脑上的 `.env.local`。在 Windows 上使用路线规划前，需要为当前用户配置一次 `AMAP_WEB_KEY`，不需要管理员权限，也不需要重新打包程序。
+
+1. 打开 Windows PowerShell，将下面的示例文字替换成自己的高德 **Web 服务 Key** 后执行（不是 JavaScript API Key）：
+
+   ```powershell
+   [Environment]::SetEnvironmentVariable(
+     "AMAP_WEB_KEY",
+     "你的高德Web服务Key",
+     "User"
+   )
+   ```
+
+2. 完全退出沙盘应用，**注销 Windows 账号后重新登录**，确保从桌面快捷方式启动的应用能读取新环境变量。仅关闭 PowerShell 窗口不一定能让桌面启动的程序获得更新。
+3. 重新打开沙盘，使用路线规划功能。Key 由 Electron 主进程读取并用于请求高德服务，无需额外启动 Node 服务。
+
+可在 PowerShell 中检查是否已配置（不输出 Key 内容）：
+
+```powershell
+if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable("AMAP_WEB_KEY", "User"))) {
+  Write-Host "尚未配置 AMAP_WEB_KEY"
+} else {
+  Write-Host "AMAP_WEB_KEY 已配置"
+}
+```
+
+如果高德 Key 设置了 IP 白名单，需要允许 Windows 机器所在网络的公网出口 IP；当前路线实现不支持高德可选的数字签名校验。更换 Key 后，重复配置及退出、注销、重新登录步骤。
+
+用户环境变量不是加密存储，本机用户可以读取 Key；不要把真实 Key 写进 README、前端代码或提交到仓库。多机分发且不希望各机器持有 Key 时，应采用受控后端统一代理调用。未配置 Key 只影响高德路线规划，不影响其他沙盘功能。
 
 ### 电脑配置
 

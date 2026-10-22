@@ -1,0 +1,30 @@
+appId: cn.anduo.sandtable
+productName: 安多县电子三维沙盘
+asar: true
+extraResources:
+  - from: desktop-resources/offline-pack
+    to: offline-pack
+    filter:
+      - '**/*'
+      - '!**/._*'
+directories:
+  output: desktop-dist
+files:
+  - desktop/**
+  - web-dist/**
+  - server/routing.mjs
+  - package.json
+  - '!node_modules/**'
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  artifactName: AnduoSandtable-Setup-${version}-${arch}.${ext}
+  signAndEditExecutable: false
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  deleteAppDataOnUninstall: false

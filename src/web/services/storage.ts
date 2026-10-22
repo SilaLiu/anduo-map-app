@@ -57,6 +57,15 @@ export function saveWorkspace(workspace: Workspace): Promise<void> {
 }
 
 export function downloadJson(value: unknown, filename: string) {
+  const desktop = (window as Window & {
+    anduoDesktop?: { exportJson: (content: string, filename: string) => Promise<boolean> };
+  }).anduoDesktop;
+  if (desktop) {
+    void desktop.exportJson(JSON.stringify(value, null, 2), filename).catch((error: Error) => {
+      alert(`导出失败：${error.message}`);
+    });
+    return;
+  }
   const url = URL.createObjectURL(
     new Blob([JSON.stringify(value, null, 2)], { type: 'application/json' }),
   );

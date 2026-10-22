@@ -27,3 +27,9 @@ defineProps<{ level: string }>();
     </template>
   </svg>
 </template>
+
+<style scoped>
+svg {
+  color: #d32f2f;
+}
+</style>

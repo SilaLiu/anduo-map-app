@@ -2,15 +2,21 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
+const proxy = {
+  '/api/route': 'http://127.0.0.1:8787',
+  '/api/amap': 'http://127.0.0.1:8787',
+  '/_AMapService': 'http://127.0.0.1:8787',
+};
+
 export default defineConfig({
   base: './',
   server: {
     fs: {
       deny: ['.env', '.env.*', '*.{crt,pem}', '**/.git/**', '**/militia-deployment.local.*'],
     },
-    proxy: { '/api/route': 'http://127.0.0.1:8787' },
+    proxy,
   },
-  preview: { proxy: { '/api/route': 'http://127.0.0.1:8787' } },
+  preview: { proxy },
   optimizeDeps: { entries: ['index.html'] },
   plugins: [
     vue(),
@@ -26,7 +32,10 @@ export default defineConfig({
   ],
   build: {
     outDir: 'web-dist',
-    rollupOptions: { output: { manualChunks: { cesium: ['cesium'] } } },
+    rollupOptions: {
+      input: { main: 'index.html', terrainLab: 'amap-terrain-lab.html' },
+      output: { manualChunks: { cesium: ['cesium'] } },
+    },
     chunkSizeWarningLimit: 5000,
   },
 });

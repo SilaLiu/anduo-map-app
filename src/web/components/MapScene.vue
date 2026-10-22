@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
+import { offlineConfig, type OfflineConfig } from '../services/offline';
+import { localStreetConfig } from '../services/localStreet';
 import {
   Viewer,
   UrlTemplateImageryProvider,
@@ -40,6 +42,8 @@ import type { Feature, FeatureCollection, Position } from 'geojson';
 import { pointOnFeature } from '@turf/turf';
 import { geometryBounds, collection } from '../domain/geo';
 import { flagMarkerImage } from '../domain/flagMarker';
+import { templeLabelColor } from '../domain/templeLabel';
+import { townOuterEdges } from '../domain/townOuterEdges';
 import { mapLayers } from '../domain/referenceLayers';
 import { roadLabelText } from '../domain/roadLabels';
 import { navigationRouteStyle } from '../domain/routeStyle';
@@ -403,7 +407,9 @@ async function updateSource(group: string, features: Feature[], color: string) {
           font: `${group === 'countySeats' ? 'bold ' : ''}${labelHierarchy(group).size}px sans-serif`,
           fillColor: !roadText ? Color.WHITE : tint,
           showBackground: true,
-          backgroundColor: Color.BLACK.withAlpha(0.7),
+          backgroundColor: group === 'temples' && templeLabelColor(townName)
+            ? Color.fromCssColorString(templeLabelColor(townName)!).withAlpha(0.95)
+            : Color.BLACK.withAlpha(0.7),
           backgroundPadding: new Cartesian2(5, 3),
           pixelOffset: new Cartesian2(
             group === 'towns' ? 48 : 0,
@@ -519,6 +525,24 @@ async function updateSource(group: string, features: Feature[], color: string) {
           featureByEntity.set(edge, { feature, group });
         });
       });
+      townOuterEdges(features).forEach((line, index) => {
+        source.entities.add({
+          id: `town-outer-edge:${index}`,
+          show: props.visibility.boundaries !== false,
+          polyline: {
+            positions: Cartesian3.fromDegreesArray(line.flatMap((p) => [p[0], p[1]])),
+            clampToGround: true,
+            width: 5,
+            material: new PolylineDashMaterialProperty({
+              color: Color.fromCssColorString('#ffd740'),
+              gapColor: Color.TRANSPARENT,
+              dashLength: 20,
+              dashPattern: 255,
+            }),
+            zIndex: 19999,
+          },
+        });
+      });
     }
     const old = sources.get(group);
     if (old) viewer.dataSources.remove(old, true);
@@ -531,9 +555,61 @@ async function updateSource(group: string, features: Feature[], color: string) {
   }
 }
 
-function setImagery() {
+let offline: OfflineConfig = { enabled: false };
+async function setImagery() {
   if (!viewer) return;
   const gen = ++imageGeneration;
+  if (!offline.enabled && props.basemap === 'street') {
+    const local = await localStreetConfig();
+    if (!viewer || viewer.isDestroyed() || gen !== imageGeneration) return;
+    const item = local?.basemaps?.street;
+    if (item) {
+      const provider = new UrlTemplateImageryProvider({
+        url: new URL(`./local-map/${item.url}`, document.baseURI).href,
+        maximumLevel: item.maximumLevel,
+        rectangle: local.bounds ? Rectangle.fromDegrees(...local.bounds) : undefined,
+        credit: item.credit,
+      });
+      let reported = false;
+      provider.errorEvent.addEventListener(() => {
+        if (!reported && gen === imageGeneration) {
+          reported = true;
+          emit('error', '本地街道瓦片缺失，请完整解压发布包；此资源仅覆盖安多周边、最高 12 级');
+        }
+      });
+      viewer.imageryLayers.removeAll();
+      viewer.imageryLayers.addImageryProvider(provider);
+      requestRender();
+      return;
+    }
+  }
+  if (offline.enabled) {
+    viewer.imageryLayers.removeAll();
+    const item = offline.basemaps?.[props.basemap];
+    if (!item) {
+      if (props.basemap !== 'street' && offline.basemaps?.street) {
+        emit('basemapFallback');
+      }
+      emit('error', offline.error || `离线包未提供 ${props.basemap} 底图，请选择已提供的底图`);
+      requestRender();
+      return;
+    }
+    const provider = new UrlTemplateImageryProvider({
+      ...item,
+      url: new URL(item.url, document.baseURI).href,
+      rectangle: offline.bounds ? Rectangle.fromDegrees(...offline.bounds) : undefined,
+    });
+    let reported = false;
+    provider.errorEvent.addEventListener(() => {
+      if (!reported && gen === imageGeneration) {
+        reported = true;
+        emit('error', '离线底图瓦片缺失或无法读取，请检查资源包完整性');
+      }
+    });
+    viewer.imageryLayers.addImageryProvider(provider);
+    requestRender();
+    return;
+  }
   const key = import.meta.env.VITE_TIANDITU_KEY;
   if (props.basemap === 'tianditu' && !key) {
     emit('error', '尚未配置天地图 Key');
@@ -542,7 +618,7 @@ function setImagery() {
   const url =
     props.basemap === 'topographic'
       ? 'https://a.tile.opentopomap.org/{z}/{x}/{y}.png'
-      : props.basemap === 'street'
+      : ['street', 'street-online'].includes(props.basemap)
         ? 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
         : props.basemap === 'tianditu'
           ? `https://t0.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${key}`
@@ -554,7 +630,7 @@ function setImagery() {
     credit:
       props.basemap === 'topographic'
         ? 'Map data © OpenStreetMap contributors, SRTM | Map style © OpenTopoMap (CC-BY-SA)'
-        : props.basemap === 'street'
+          : ['street', 'street-online'].includes(props.basemap)
           ? '© OpenStreetMap contributors'
           : props.basemap === 'tianditu'
             ? '© 天地图'
@@ -598,8 +674,9 @@ async function setTerrain() {
   }
   emit('terrainStatus', '地形加载中');
   try {
-    const url = import.meta.env.VITE_TERRAIN_URL;
-    const token = import.meta.env.VITE_CESIUM_ION_TOKEN;
+    const url = offline.enabled ? offline.terrain && new URL(offline.terrain, document.baseURI).href : import.meta.env.VITE_TERRAIN_URL;
+    const token = offline.enabled ? undefined : import.meta.env.VITE_CESIUM_ION_TOKEN;
+    if (offline.enabled && !url) throw new Error(offline.error || '离线包未提供三维高程数据');
     if (!url && !token) throw new Error('尚未配置高程数据源');
     if (token) Ion.defaultAccessToken = token;
     const provider = url
@@ -734,6 +811,18 @@ function fitCentralTowns() {
     duration: 1.8,
     easingFunction: EasingFunction.CUBIC_IN_OUT,
   });
+}
+function fitHomepage() {
+  if (!viewer || viewer.isDestroyed()) return;
+  viewer.camera.cancelFlight();
+  viewer.camera.flyToBoundingSphere(
+    new BoundingSphere(Cartesian3.fromDegrees(91.68, 32.265), 0),
+    {
+      offset: new HeadingPitchRange(0, -Math.PI / 4, 5500),
+      duration: 1.8,
+      easingFunction: EasingFunction.CUBIC_IN_OUT,
+    },
+  );
 }
 function home() {
   if (!viewer) return;
@@ -972,8 +1061,10 @@ watch(
   },
 );
 
-onMounted(() => {
+onMounted(async () => {
   try {
+    offline = await offlineConfig();
+    if (!container.value) return;
     (globalThis as typeof globalThis & { CESIUM_BASE_URL: string }).CESIUM_BASE_URL = new URL(
       `${import.meta.env.BASE_URL}cesium/`,
       document.baseURI,
@@ -1107,6 +1198,7 @@ onBeforeUnmount(() => {
   viewer = undefined;
 });
 defineExpose({
+  fitHomepage,
   focus,
   fitTemples,
   fitCountyTraffic,

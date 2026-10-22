@@ -1,8 +1,19 @@
 <script setup lang="ts">
 import DeploymentDemo from './components/DeploymentDemo.vue';
+import CoordinatePanel from './components/CoordinatePanel.vue';
+import { coordinateAnnotations, type CoordinateShape } from './domain/coordinateAnnotations';
 import { defaultDeployments, type DeploymentByTown } from './domain/deployment';
 import { templeRoster } from './domain/templeRoster';
-import { computed, nextTick, onMounted, onBeforeUnmount, reactive, ref, shallowRef } from 'vue';
+import {
+  computed,
+  nextTick,
+  onMounted,
+  onBeforeUnmount,
+  reactive,
+  ref,
+  shallowRef,
+  watch,
+} from 'vue';
 import {
   Globe2,
   Maximize,
@@ -48,6 +59,7 @@ import type {
   Workspace,
 } from './types';
 import MapScene from './components/MapScene.vue';
+import AMapScene from './components/AMapScene.vue';
 import DriveSimulation from './components/DriveSimulation.vue';
 import MapLegend from './components/MapLegend.vue';
 import TaskPanel from './components/TaskPanel.vue';
@@ -88,17 +100,55 @@ const loading = ref(true),
   ready = ref(false);
 const saveStatus = ref('未载入');
 const notice = ref('');
+const coordinatePanel = ref(false);
+const coordinateBusy = ref(false);
+const coordinateError = ref('');
+async function addCoordinateAnnotations(text: string, name: string, shape: CoordinateShape) {
+  coordinateBusy.value = true;
+  coordinateError.value = '';
+  try {
+    if (loadFailed.value || loading.value) throw new Error('工作区尚未成功读取，请稍后重试');
+    const incoming = coordinateAnnotations(text, name, shape);
+    const defaults = await loadAnduoBoundaryData();
+    if (incoming.some((feature) => !isAnduoFeature(feature, defaults)))
+      throw new Error('输入中包含安多县范围外的点位或区域，请检查经纬度');
+    annotations.value = [...annotations.value, ...incoming.map((a) => assignAdmin(a, boundaries.value))];
+    activeTheme.value = '';
+    visibility.annotations = true;
+    await nextTick();
+    map.value?.focus(incoming[incoming.length - 1]);
+    if (await persist()) {
+      notice.value = `已保存 ${incoming.filter((a) => a.geometry.type === 'Point').length} 个旗帜点位${shape === 'points' ? '' : shape === 'line' ? '及连线' : '及区域'}`;
+      coordinatePanel.value = false;
+    } else coordinateError.value = '标注已显示但保存失败，请重试保存或导出完整备份';
+  } catch (e) {
+    coordinateError.value = (e as Error).message;
+  } finally { coordinateBusy.value = false; }
+}
 const tab = ref('boundaries');
 const search = ref('');
 const sidebar = ref(true);
 const mapOnly = ref(true);
 const mapContainer = ref<HTMLElement>();
+const desktopControls = (window as Window & {
+  anduoDesktop?: {
+    getFullscreen: () => Promise<boolean>;
+    toggleFullscreen: () => Promise<boolean>;
+    onFullscreenChange: (callback: (value: boolean) => void) => () => void;
+  };
+}).anduoDesktop;
+let stopFullscreenListener: (() => void) | undefined;
 const mapFullscreen = ref(false);
 function syncFullscreen() {
+  if (desktopControls) return;
   mapFullscreen.value = document.fullscreenElement === mapContainer.value;
 }
 async function toggleMapFullscreen() {
   try {
+    if (desktopControls) {
+      await desktopControls.toggleFullscreen();
+      return;
+    }
     if (mapFullscreen.value) await document.exitFullscreen();
     else if (mapContainer.value?.requestFullscreen) await mapContainer.value.requestFullscreen();
     else window.alert('当前浏览器不支持沙盘全屏，请使用新版 Chrome。');
@@ -106,13 +156,21 @@ async function toggleMapFullscreen() {
     window.alert('无法进入或退出全屏，请检查浏览器权限后重试。');
   }
 }
-const map = ref<InstanceType<typeof MapScene>>();
+const map = ref<InstanceType<typeof MapScene> | InstanceType<typeof AMapScene>>();
 const editor = ref<Annotation | null>(null);
 const editorVersion = ref(0);
 const selection = ref<{ feature: Feature; group: string } | null>(null);
 const popupPosition = ref<{ x: number; y: number } | null>(null);
 const basemap = ref('satellite');
-const activeTheme = ref('');
+const amapActive = computed(() => basemap.value === 'amap3d');
+watch(amapActive, () => {
+  ready.value = false;
+  cancelDraw();
+  selection.value = null;
+  popupPosition.value = null;
+  coordinate.value = null;
+});
+const activeTheme = ref('home');
 const deployments = ref<DeploymentByTown>(defaultDeployments());
 const visibleDeployments = computed<DeploymentByTown>(() =>
   activeTheme.value === 'theme-militia' ? deployments.value : {},
@@ -125,8 +183,19 @@ const deploymentTowns = computed(() => {
 });
 function selectTheme(key: string) {
   activeTheme.value = key;
-  basemap.value = !key ? 'satellite' : key === 'theme-militia' ? 'topographic' : 'street';
-  if (!key) map.value?.home();
+  basemap.value = !key || key === 'home' ? 'satellite' : key === 'theme-militia' ? 'topographic' : 'street';
+  if (key === 'home') {
+    mode.value = '3D';
+    void nextTick(() => map.value?.fitHomepage());
+  }
+  if (!key) {
+    const county = boundaries.value.find((feature) =>
+      feature.properties?.level === 'county' &&
+      (String(feature.properties?.adcode) === '540624' || feature.properties?.name === '安多县'),
+    );
+    if (county) map.value?.focus(county);
+    else map.value?.fitCountyTraffic();
+  }
   if (key === 'theme-temples') map.value?.fitTemples();
   if (key === 'theme-roads') map.value?.fitCountyTraffic();
   if (key === 'theme-militia') map.value?.fitCentralTowns();
@@ -266,7 +335,12 @@ function toggleSpeech() {
   else stopFeatureSpeech();
 }
 function snapshot(): Workspace {
-  return { version: 2, annotations: annotations.value, boundaries: boundaries.value, deployments: deployments.value };
+  return {
+    version: 2,
+    annotations: annotations.value,
+    boundaries: boundaries.value,
+    deployments: deployments.value,
+  };
 }
 async function persist(): Promise<boolean> {
   if (loadFailed.value) {
@@ -349,6 +423,10 @@ function openEditor(a: Annotation) {
   selection.value = null;
 }
 function startDraw(value: DrawMode, task?: Task) {
+  if (amapActive.value) {
+    report('高德模式暂不支持绘制和提取，请切回卫星影像或街道底图');
+    return;
+  }
   if (!ready.value || loadFailed.value) return;
   if (routeMode.value) clearRoute();
   pendingTask.value = task || null;
@@ -622,19 +700,12 @@ async function loadAnduoBoundaries() {
     name: '安多县全部边界',
   });
 }
-function locateSearch() {
+async function locateSearch() {
   const match = search.value.trim().match(/^(-?\d+(?:\.\d+)?)\s*[,，\s]\s*(-?\d+(?:\.\d+)?)$/);
   if (match) {
-    try {
-      const f = toAnnotation({
-        type: 'Feature',
-        geometry: { type: 'Point', coordinates: [+match[1], +match[2]] },
-        properties: { name: search.value },
-      });
-      map.value?.focus(f);
-    } catch (e) {
-      report(e);
-    }
+    if (coordinateBusy.value) return;
+    await addCoordinateAnnotations(search.value, '坐标标注', 'points');
+    if (coordinateError.value) report(coordinateError.value);
     return;
   }
   const f =
@@ -693,6 +764,10 @@ function beforeUnload(event: BeforeUnloadEvent) {
   if (saveStatus.value === '未保存' || saveStatus.value === '保存中') event.preventDefault();
 }
 onMounted(() => {
+  if (desktopControls) {
+    stopFullscreenListener = desktopControls.onFullscreenChange((value) => { mapFullscreen.value = value; });
+    void desktopControls.getFullscreen().then((value) => { mapFullscreen.value = value; });
+  }
   document.addEventListener('fullscreenchange', syncFullscreen);
   void init();
   if (speechSupported.value) window.speechSynthesis.getVoices();
@@ -702,6 +777,7 @@ onMounted(() => {
   window.addEventListener('beforeunload', beforeUnload);
 });
 onBeforeUnmount(() => {
+  stopFullscreenListener?.();
   document.removeEventListener('fullscreenchange', syncFullscreen);
   routeVersion++;
   routeRequest?.abort();
@@ -738,9 +814,7 @@ onBeforeUnmount(() => {
         >
           <X :size="15" />清空
         </button>
-        <button class="search-submit" type="submit" :disabled="!search.trim()">
-          搜索
-        </button>
+        <button class="search-submit" type="submit" :disabled="!search.trim()">搜索</button>
       </form>
       <div class="header-actions">
         <span class="connection" :class="{ offline: !online }"
@@ -880,7 +954,10 @@ onBeforeUnmount(() => {
             >
               <button
                 class="feature-main"
-                @click="pickFeature(b, 'boundaries'); map?.focus(b)"
+                @click="
+                  pickFeature(b, 'boundaries');
+                  map?.focus(b);
+                "
                 @dblclick="map?.focus(b)"
               >
                 <Globe2 :size="17" /><span
@@ -921,16 +998,31 @@ onBeforeUnmount(() => {
             <h3>底图</h3>
             <select v-model="basemap" aria-label="底图">
               <option value="satellite">卫星影像 · Esri</option>
-              <option value="street">街道地图 · OpenStreetMap</option>
+              <option value="street">街道地图 · 优先本地 OSM</option>
+              <option value="street-online">在线街道 · OpenStreetMap</option>
+              <!-- 高德卫星地形尚未验证真实高程渲染，暂不开放，保留实验页供后续迭代。 -->
               <option
-                v-if="activeTheme === 'theme-militia' || basemap === 'topographic'"
                 value="topographic"
               >
                 地形地貌 · OpenTopoMap
               </option>
             </select>
+            <p v-if="basemap === 'street'" class="setting-value">
+              混合发布包优先使用本地 OSM 简化街道：安多周边（88.5°–93.8°E、31.2°–36.5°N），
+              0–12 级，无中文地图文字。超出范围或继续放大不会增加细节。
+              未安装本地资源时使用在线 OSM。
+            </p>
+            <p v-if="['street-online', 'topographic'].includes(basemap)" class="setting-value">
+              在线地图需联网，受服务可用性和使用政策限制；加载失败可切回本地街道。
+              地形地貌为二维地形制图，不代表已提供三维高程。
+            </p>
+            <p v-if="amapActive" class="setting-value">
+              卫星影像＋三维地形：使用高德 2.1Beta
+              地形能力，默认启用。按住鼠标右键上下拖动可查看山体起伏；县城附近较平坦，可缩小后移向周边山地。暂不支持绘制、提取、兵力部署展示和标注建筑挤出。实际地形效果受高德服务、数据覆盖和浏览器
+              WebGL 支持影响。
+            </p>
             <p v-if="selectedTheme" class="setting-value">
-              当前底图叠加安多县专题；点击地图上方“综合”恢复业务图层设置。
+              当前底图叠加安多县专题；点击地图上方“全览”恢复业务图层设置。
               {{
                 themeFeatureCount ? `已加载 ${themeFeatureCount} 条，覆盖可能不完整。` : '暂无数据'
               }}
@@ -938,10 +1030,22 @@ onBeforeUnmount(() => {
             <h3>场景</h3>
             <label class="toggle-row"
               ><span>真实地形</span
-              ><input v-model="terrain" type="checkbox" :disabled="!terrainAvailable"
+              ><input
+                v-if="amapActive"
+                type="checkbox"
+                checked
+                disabled
+                aria-label="高德地形默认启用" />
+              <input v-else v-model="terrain" type="checkbox" :disabled="!terrainAvailable"
             /></label>
             <p class="setting-value">
-              {{ terrainAvailable ? terrainStatus : '未配置高程数据源 · 椭球地表' }}
+              {{
+                amapActive
+                  ? '已请求高德三维地形 · 2.1Beta（实际加载以地图为准）'
+                  : terrainAvailable
+                    ? terrainStatus
+                    : '未配置高程数据源 · 椭球地表'
+              }}
             </p>
             <label class="range-label"
               >地形夸张 <output>{{ exaggeration.toFixed(1) }}×</output
@@ -951,12 +1055,19 @@ onBeforeUnmount(() => {
                 min="1"
                 max="5"
                 step="0.1"
-                :disabled="!terrain"
+                :disabled="amapActive || !terrain"
             /></label>
+            <p v-if="amapActive" class="setting-value">高德模式不提供本项目的地形夸张调节。</p>
             <label class="toggle-row"
               ><span>建筑物立体显示</span><input v-model="buildings3d" type="checkbox"
             /></label>
-            <p class="setting-value">已有建筑面且填写楼层数时，按每层约 3 米示意挤出。</p>
+            <p class="setting-value">
+              {{
+                amapActive
+                  ? '控制高德原生建筑显示，放大后是否有立体建筑取决于当地数据覆盖。'
+                  : '已有建筑面且填写楼层数时，按每层约 3 米示意挤出。'
+              }}
+            </p>
             <label class="toggle-row"
               ><span>地名标签</span><input v-model="labels" type="checkbox"
             /></label>
@@ -998,7 +1109,9 @@ onBeforeUnmount(() => {
         </section>
       </aside>
       <main ref="mapContainer" class="map-area">
-        <MapScene
+        <CoordinatePanel v-if="coordinatePanel" :busy="coordinateBusy" :error="coordinateError" @close="coordinatePanel = false" @create="addCoordinateAnnotations" />
+        <component
+          :is="amapActive ? AMapScene : MapScene"
           v-if="!loading && !loadFailed"
           ref="map"
           :annotations="annotations"
@@ -1020,7 +1133,7 @@ onBeforeUnmount(() => {
           :highlight="selection?.feature"
           :deployments="visibleDeployments"
           @popup-position="popupPosition = $event"
-          @ready="ready = true"
+          @ready="ready = true; activeTheme === 'home' && map?.fitHomepage()"
           @error="report"
           @select="pickFeature"
           @route-point="chooseRoutePoint"
@@ -1038,12 +1151,13 @@ onBeforeUnmount(() => {
           ><button v-if="loadFailed" @click="init"><RefreshCw :size="16" />重新加载</button>
         </div>
         <div class="map-top-left">
+          <button type="button" class="map-button" :disabled="!ready || loadFailed" @click="coordinateError = ''; coordinatePanel = !coordinatePanel">经纬度标注</button>
           <button v-if="!mapFullscreen" class="map-button" @click="mapOnly = !mapOnly">
             {{ mapOnly ? '恢复完整界面' : '只显示沙盘' }}
           </button>
           <button
-            class="icon-button map-button"
-            :title="mapFullscreen ? '退出沙盘全屏（Esc）' : '沙盘全屏'"
+            class="icon-button map-button fullscreen-toggle"
+            :title="mapFullscreen ? '退出沙盘全屏' : '沙盘全屏'"
             :aria-label="mapFullscreen ? '退出沙盘全屏' : '沙盘全屏'"
             :aria-pressed="mapFullscreen"
             @click="toggleMapFullscreen"
@@ -1083,11 +1197,18 @@ onBeforeUnmount(() => {
             @dblclick.stop
           >
             <button
+              :class="{ active: activeTheme === 'home' }"
+              :aria-pressed="activeTheme === 'home'"
+              @click="selectTheme('home')"
+            >
+              主页
+            </button>
+            <button
               :class="{ active: !activeTheme }"
               :aria-pressed="!activeTheme"
               @click="selectTheme('')"
             >
-              综合
+              全览
             </button>
             <button
               v-for="theme in thematicBasemaps"
@@ -1367,7 +1488,12 @@ onBeforeUnmount(() => {
           :save-status="saveStatus"
           @dirty="saveStatus = '未保存'"
           @save="void persist()"
-          @locate="(town) => { const feature = layers.towns?.features.find((item) => item.properties?.name === town); if (feature) map?.focus(feature); }"
+          @locate="
+            (town) => {
+              const feature = layers.towns?.features.find((item) => item.properties?.name === town);
+              if (feature) map?.focus(feature);
+            }
+          "
         />
         <MapLegend
           v-show="!drawMode && !['theme-temples', 'theme-militia'].includes(activeTheme)"
@@ -1376,7 +1502,9 @@ onBeforeUnmount(() => {
         />
         <div class="map-caption">
           <span class="cursor-coordinate" aria-label="鼠标经纬度">
-            <template v-if="coordinate">经度 {{ coordinate[0].toFixed(6) }}° · 纬度 {{ coordinate[1].toFixed(6) }}°</template>
+            <template v-if="coordinate"
+              >经度 {{ coordinate[0].toFixed(6) }}° · 纬度 {{ coordinate[1].toFixed(6) }}°</template
+            >
             <template v-else>移动鼠标到地图查看经纬度</template>
           </span>
           <span class="live-dot"></span>{{ terrainStatus
@@ -1388,7 +1516,11 @@ onBeforeUnmount(() => {
       </main>
     </div>
     <footer class="statusbar">
-      <span>{{ coordinate ? `经度 ${coordinate[0].toFixed(6)}° · 纬度 ${coordinate[1].toFixed(6)}°` : '移动鼠标到地图查看经纬度' }}</span
+      <span>{{
+        coordinate
+          ? `经度 ${coordinate[0].toFixed(6)}° · 纬度 ${coordinate[1].toFixed(6)}°`
+          : '移动鼠标到地图查看经纬度'
+      }}</span
       ><span class="save-status" :class="{ 'error-text': saveStatus === '未保存' }">{{
         saveStatus
       }}</span
@@ -1445,3 +1577,11 @@ onBeforeUnmount(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.fullscreen-toggle {
+  min-height: 48px;
+  min-width: 48px;
+  touch-action: manipulation;
+}
+</style>

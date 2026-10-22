@@ -10,6 +10,9 @@ for (const viewport of [
     const legend = page.getByRole('region', { name: '地图图例' });
     const heading = legend.getByRole('button', { name: '图例' });
     await expect(legend).toBeVisible();
+    await expect(legend.getByText('安多县界（黄色实线）', { exact: true })).toBeVisible();
+    await expect(legend.getByText('四乡镇外围界（黄色虚线）', { exact: true })).toBeVisible();
+    await expect(legend.locator('.symbol-boundary')).toHaveCSS('border-top-style', 'dashed');
     await expect(legend.getByText('国道', { exact: true })).toBeVisible();
     for (const name of ['省道', '县道', '乡道'])
       await expect(legend.getByText(name, { exact: true })).toBeVisible();
